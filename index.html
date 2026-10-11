@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FAF8F4">
+<title>Armario · prototipo de web móvil</title>
+<style>
+:root{--i-base:url("img/base.jpeg");--i-prendas:url("img/prendas.jpeg");--i-c1_terraza:url("img/c1_terraza.jpeg");--i-c1_oficina:url("img/c1_oficina.jpeg");--i-c1_noche:url("img/c1_noche.jpeg");--i-c2_terraza:url("img/c2_terraza.jpeg");--i-c2_oficina:url("img/c2_oficina.jpeg");--i-c2_noche:url("img/c2_noche.jpeg");}
+:root{--bg:#FAF8F4;--card:#fff;--ink:#1c1c1a;--muted:#6b6862;--line:#e9e4da;--chip:#f1ede4;--green:#1c4d3a;--green2:#163d2d;--soft:#e4eee8;--warn:#c0561b;--red:#b3261e;
+--st:54px;--sb:34px;--off:0px;
+--serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+--sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:#e8e5de;font-family:var(--sans);color:var(--ink);-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+input,textarea{font:inherit;color:inherit}
+#stage{min-height:100%;display:flex;align-items:center;justify-content:center;gap:40px;padding:16px}
+#side{width:310px;max-height:calc(100vh - 32px);overflow:auto;font-size:14px;line-height:1.4}
+#side h1{font-family:var(--serif);font-size:26px;margin:0 0 4px}
+#side p{color:var(--muted);margin:0 0 14px}
+#dwrap{flex:none}
+#device{position:relative;width:422px;height:894px;padding:10px;background:#0c0c0c;border-radius:64px;box-shadow:0 30px 60px rgba(0,0,0,.28),inset 0 0 0 2px #333;transform-origin:0 0}
+#app{position:relative;width:402px;height:874px;border-radius:54px;overflow:hidden;background:var(--bg)}
+body.mobile{--st:env(safe-area-inset-top,0px);--sb:env(safe-area-inset-bottom,0px)}
+body.mobile #stage{padding:0;display:block;min-height:0}
+body.mobile #side{display:none}
+body.mobile #dwrap{width:100vw;height:100vh;height:100dvh}
+body.mobile #device{width:100%;height:100%;padding:0;border-radius:0;background:none;box-shadow:none;transform:none!important}
+body.mobile #app{width:100%;height:100%;border-radius:0}
+body.mobile #status{display:none}
+#status{position:absolute;top:0;left:0;right:0;height:54px;display:flex;justify-content:space-between;align-items:center;padding:8px 38px 0 44px;font-weight:600;font-size:16px;z-index:55;pointer-events:none}
+#status .island{position:absolute;left:50%;top:11px;width:122px;height:36px;border-radius:20px;background:#000;transform:translateX(-50%)}
+#status.dk{color:#fff}
+#status svg{display:block}
+.sbr{display:flex;gap:6px;align-items:center}
+#screen{position:absolute;inset:0;overflow:hidden}
+.scr{position:absolute;inset:0;display:flex;flex-direction:column;padding-top:calc(var(--st) + var(--off));background:var(--bg)}
+#app.off{--off:30px}
+#yoproto{display:none}body.mobile #yoproto{display:block}
+.scr.dark{background:#121212;color:#fff}
+.body{flex:1;overflow-y:auto;overflow-x:hidden;padding:0 20px 120px;scrollbar-width:none}
+.body::-webkit-scrollbar{display:none}
+.body.nb{padding-bottom:40px}
+.top{height:52px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 8px;position:relative}
+.top .ttl{position:absolute;left:0;right:0;text-align:center;font-weight:600;font-size:15px;color:var(--green);pointer-events:none}
+.ib{width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.ib.g{color:var(--green)}
+h1.t{font-family:var(--serif);font-weight:700;font-size:31px;line-height:1.12;margin:6px 0 8px;letter-spacing:-.2px}
+h2.t{font-family:var(--serif);font-weight:700;font-size:25px;margin:4px 0 6px}
+.sub{color:var(--muted);font-size:16px;line-height:1.4;margin:0 0 16px}
+.sm{font-size:14px;color:var(--muted);line-height:1.4}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:54px;border-radius:17px;background:var(--green);color:#fff;font-weight:600;font-size:17px}
+.btn:active{background:var(--green2)}
+.btn.off{background:#c9cdc9;color:#fff}
+.btn.sec{background:#fff;color:var(--green);box-shadow:inset 0 0 0 1.5px var(--green)}
+.btn.ghost{background:none;color:var(--green);height:46px;font-size:16px}
+.btn.sm2{height:44px;font-size:15px;border-radius:14px}
+.btn.load{opacity:.6;pointer-events:none}
+.cta{position:absolute;left:0;right:0;bottom:0;padding:14px 20px calc(14px + var(--sb));background:linear-gradient(to top,var(--bg) 72%,rgba(250,248,244,0));z-index:10;display:flex;flex-direction:column;gap:2px}
+.card{background:#fff;border-radius:20px;padding:16px;box-shadow:0 1px 0 var(--line),0 6px 18px rgba(40,30,10,.04)}
+.chip{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px;border-radius:18px;background:var(--chip);font-size:14px;white-space:nowrap}
+.chip.on{background:var(--green);color:#fff}
+.chip.ol{background:#fff;box-shadow:inset 0 0 0 1.3px #cfd8d2;color:var(--green)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips.scx{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin:0 -20px;padding:0 20px}
+.chips.scx::-webkit-scrollbar{display:none}
+.seg{display:flex;background:var(--chip);border-radius:14px;padding:3px;gap:3px}
+.seg button{flex:1;height:38px;border-radius:11px;font-size:15px;font-weight:500;color:var(--muted)}
+.seg button.on{background:var(--green);color:#fff}
+.field{display:block;margin:0 0 14px}
+.field span{display:block;font-size:14px;font-weight:600;margin:0 0 6px}
+.inp{width:100%;height:52px;border-radius:14px;border:1.5px solid #ddd7cb;background:#fff;padding:0 14px;font-size:16px}
+.inp:focus,.ta:focus{outline:none;border-color:var(--green)}
+.err{color:var(--red);font-size:14px;margin:6px 2px 0;display:flex;gap:6px;align-items:flex-start}
+.ta{width:100%;min-height:96px;border-radius:16px;border:1.5px solid #ddd7cb;background:#fff;padding:14px;font-size:16px;line-height:1.35;resize:none;display:block}
+.cnt{position:absolute;right:14px;bottom:10px;font-size:13px;color:var(--muted)}
+.cb{display:flex;gap:12px;align-items:flex-start;padding:8px 0;font-size:16px;line-height:1.35;text-align:left;width:100%}
+.cb i{flex:none;width:26px;height:26px;border-radius:8px;border:1.8px solid #b9b3a6;display:flex;align-items:center;justify-content:center;color:#fff;margin-top:-1px;background:#fff}
+.cb.on i{background:var(--green);border-color:var(--green)}
+.tile{position:relative;width:100%;aspect-ratio:1;background:#f3f0ea;border-radius:16px;overflow:hidden}
+.spr{position:absolute;inset:0;background-image:var(--i-prendas);background-repeat:no-repeat;mix-blend-mode:multiply}
+.ph{background-size:cover;background-position:center;background-repeat:no-repeat;background-color:#d9d4c8}
+.mark{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;border-radius:10px;padding:3px 8px}
+.mark.y{background:#e3efe7;color:#1c5a3d}
+.mark.m{background:#f1ece0;color:#5d5442}
+.mark.n{background:#ece8ee;color:#5b4f66}
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;border-radius:10px;padding:3px 8px;background:#fbe9dc;color:#a24610}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--green);display:inline-block}
+.dot.w{background:var(--warn)}
+.tabbar{position:absolute;left:0;right:0;bottom:0;height:calc(66px + var(--sb));padding-bottom:var(--sb);background:rgba(255,255,255,.97);border-top:1px solid var(--line);display:flex;align-items:flex-end;z-index:20}
+.tabbar.hide{display:none}
+.tab{flex:1;height:66px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;color:#77736b;position:relative}
+.tab.on{color:var(--green);font-weight:600}
+.tab.on:not(.armar)::after{content:"";position:absolute;bottom:6px;width:26px;height:2.5px;border-radius:2px;background:var(--green)}
+.tab.armar .pill{width:64px;height:64px;border-radius:50%;background:var(--green);color:#fff;margin-top:-30px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;font-size:11.5px;font-weight:600;box-shadow:0 6px 16px rgba(28,77,58,.35);border:4px solid var(--bg)}
+.tab .bd{position:absolute;top:10px;left:calc(50% + 8px);width:10px;height:10px;border-radius:50%;background:var(--warn);border:2px solid #fff}
+#offline{position:absolute;top:var(--st);left:0;right:0;height:30px;background:#3c3a35;color:#fff;font-size:13.5px;text-align:center;padding:6px 12px;z-index:45;display:none}
+#app.off #offline{display:block}
+#toast{position:absolute;left:20px;right:20px;bottom:calc(150px + var(--sb));background:#2a2926;color:#fff;border-radius:14px;padding:12px 16px;font-size:14.5px;line-height:1.35;z-index:80;opacity:0;transform:translateY(8px);transition:.25s;pointer-events:none;text-align:center}
+#toast.on{opacity:1;transform:none}
+#sheetwrap{position:absolute;inset:0;z-index:70;display:none}
+#sheetwrap.on{display:block}
+#sheetwrap .back{position:absolute;inset:0;background:rgba(0,0,0,.42);opacity:0;transition:.22s}
+#sheetwrap.in .back{opacity:1}
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:26px 26px 0 0;padding:10px 20px calc(20px + var(--sb));transform:translateY(100%);transition:transform .25s;max-height:88%;overflow:auto}
+#sheetwrap.in .sheet{transform:none}
+.grab{display:block;width:40px;height:5px;border-radius:3px;background:#d7d2c7;margin:0 auto 14px}
+.sheet h3{font-family:var(--serif);font-size:23px;margin:4px 0 8px}
+.row{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);width:100%;text-align:left;font-size:16px}
+.row:last-child{border-bottom:0}
+.row .grow{flex:1}
+.row .sm{display:block}
+.car{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 20px 4px 16px;margin:0 -20px;scrollbar-width:none}
+.car::-webkit-scrollbar{display:none}
+.lk{position:relative;flex:none;width:58%;aspect-ratio:2/3;border-radius:18px;overflow:hidden;scroll-snap-align:start;background-color:#d9d4c8}
+.lk .tt{position:absolute;left:10px;bottom:10px;max-width:calc(100% - 20px);background:#fff;border-radius:12px;padding:6px 10px;font-size:13.5px;box-shadow:0 2px 8px rgba(0,0,0,.14)}
+.hrt{position:absolute;top:6px;right:6px;width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;color:#fff}
+.hrt svg{filter:drop-shadow(0 1px 3px rgba(0,0,0,.4))}
+.hrt.on svg{fill:#e5484d;stroke:#e5484d}
+.sk{background:linear-gradient(100deg,#ece7dc 30%,#f6f2ea 50%,#ece7dc 70%);background-size:200% 100%;animation:sh 1.4s infinite linear;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:#8b867a;font-size:14px}
+@keyframes sh{to{background-position:-200% 0}}
+.conj{margin:0 0 22px}
+.conj-h{display:flex;align-items:center;gap:8px;margin:0 0 10px}
+.strip{display:flex;gap:6px;flex:1}
+.strip .tg{width:44px;position:relative}
+.strip .tg .tile{border-radius:11px}
+.strip .tg .dot{position:absolute;top:3px;right:3px;box-shadow:0 0 0 2px #fff}
+.bar{height:6px;border-radius:3px;background:#e2ddd0;overflow:hidden;margin:10px 0 8px}
+.bar i{display:block;height:100%;background:var(--green);transition:width .4s}
+.ban{background:#fff;border-radius:18px;padding:14px 16px;margin:0 0 16px;box-shadow:0 1px 0 var(--line),0 6px 18px rgba(40,30,10,.05)}
+.steps{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);margin:2px 0 10px}
+.steps b{display:inline-flex;width:22px;height:22px;border-radius:11px;align-items:center;justify-content:center;background:var(--chip);font-weight:600;font-size:12px}
+.steps .on b{background:var(--green);color:#fff}
+.steps .on{color:var(--green);font-weight:600}
+.steps .ln{flex:1;height:1.5px;background:var(--line)}
+.tips{display:flex;gap:10px;margin:6px 0 16px}
+.tips div{flex:1;background:#fff;border-radius:16px;padding:12px 6px;text-align:center;font-size:13px;line-height:1.3;box-shadow:0 1px 0 var(--line)}
+.tips svg{display:block;margin:0 auto 6px;color:var(--green)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.gi{position:relative;text-align:left}
+.gi .nm{font-size:15px;font-weight:500;margin:7px 2px 3px}
+.gi .sel{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:14px;background:rgba(255,255,255,.9);border:1.8px solid #b9b3a6;display:flex;align-items:center;justify-content:center;color:#fff}
+.gi.on .sel{background:var(--green);border-color:var(--green)}
+.gi.on .tile{box-shadow:0 0 0 3px var(--green)}
+.search{display:flex;align-items:center;gap:8px;height:46px;border-radius:14px;background:var(--chip);padding:0 14px;color:var(--muted);margin:0 0 12px}
+.search input{border:0;background:none;flex:1;font-size:16px;outline:none}
+.fab{position:absolute;right:18px;bottom:calc(86px + var(--sb));height:52px;border-radius:26px;background:var(--green);color:#fff;display:flex;align-items:center;gap:8px;padding:0 20px 0 16px;font-weight:600;font-size:16px;box-shadow:0 8px 20px rgba(28,77,58,.35);z-index:15}
+.selbar{position:absolute;left:0;right:0;bottom:calc(66px + var(--sb));padding:12px 20px;background:linear-gradient(to top,var(--bg) 70%,rgba(250,248,244,0));z-index:16}
+.sw{display:flex;flex-wrap:wrap;gap:10px}
+.sw button{width:44px;height:44px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.sw.dim button{opacity:.55}
+.coach{position:absolute;left:16px;right:16px;z-index:30;background:#23221f;color:#fff;border-radius:16px;padding:14px 16px;font-size:15px;line-height:1.35;box-shadow:0 10px 26px rgba(0,0,0,.25)}
+.coach button{display:block;margin-top:8px;color:#9fd8b8;font-weight:600;font-size:15px;height:36px}
+.coach::before{content:"";position:absolute;top:-7px;left:34px;width:14px;height:14px;background:#23221f;transform:rotate(45deg)}
+.coach.up::before{top:auto;bottom:-7px;left:calc(50% - 7px)}
+.track{display:flex;height:100%;transition:transform .35s cubic-bezier(.3,.7,.2,1);touch-action:pan-y}
+.slide{flex:none;width:100%;padding:0 24px;display:flex;flex-direction:column}
+.slide .vis{height:360px;display:flex;align-items:center;justify-content:center;position:relative;margin-bottom:12px}
+.dots{display:flex;gap:7px;justify-content:center;margin:0 0 16px}
+.dots i{width:8px;height:8px;border-radius:4px;background:#d5d0c4;transition:.25s}
+.dots i.on{width:24px;background:var(--green)}
+.v1{display:grid;grid-template-columns:repeat(3,1fr);gap:10px 10px;width:100%}
+.v1c{text-align:center}
+.rc{display:inline-flex;gap:3px;align-items:center;font-size:11.5px;margin-top:6px;color:#5d5a52}
+.rc.ok{color:#1c5a3d;font-weight:600}
+.scan{position:absolute;left:10px;right:10px;height:3px;border-radius:2px;background:linear-gradient(90deg,transparent,#3d9a70,transparent);animation:scan 2.6s infinite ease-in-out}
+@keyframes scan{0%{top:6%}50%{top:94%}100%{top:6%}}
+.bub{max-width:82%;padding:11px 14px;border-radius:18px;font-size:15.5px;line-height:1.35}
+.bub.u{background:var(--green);color:#fff;margin-left:auto;border-bottom-right-radius:6px}
+.bub.a{background:#efebe2;border-bottom-left-radius:6px}
+.av{width:32px;height:32px;border-radius:16px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.msg{display:flex;gap:8px;align-items:flex-end;margin:0 0 10px}
+.dstage{position:relative;display:flex;justify-content:center;transition:.3s}
+.dimg{position:relative;aspect-ratio:2/3;border-radius:0;overflow:hidden;transition:width .35s,border-radius .35s;touch-action:pan-y}
+.chat .dimg{border-radius:16px}
+.dfl{position:absolute;display:flex;flex-direction:column;gap:10px;right:12px;bottom:14px;transition:.35s}
+.chat .dfl{right:auto;bottom:0;left:calc(50% + var(--iw)/2 + 10px)}
+.fb{width:48px;height:48px;border-radius:24px;background:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(0,0,0,.2);color:var(--ink)}
+.fb.on svg{fill:#e5484d;stroke:#e5484d}
+.pg{position:absolute;top:10px;left:0;right:0;display:flex;gap:5px;justify-content:center}
+.pg i{width:22px;height:3px;border-radius:2px;background:rgba(255,255,255,.5)}
+.pg i.on{background:#fff}
+.vth{flex:none;width:62px;text-align:center;font-size:11.5px;color:var(--muted);white-space:nowrap}
+.chat .dimg .tt{display:none}
+.vth div{aspect-ratio:2/3;border-radius:10px;margin-bottom:4px;box-shadow:0 0 0 1px var(--line)}
+.vth.on div{box-shadow:0 0 0 2.5px var(--green)}
+.vth.on{color:var(--green);font-weight:600}
+.csheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:26px 26px 0 0;box-shadow:0 -8px 30px rgba(0,0,0,.12);display:flex;flex-direction:column;padding:10px 16px calc(14px + var(--sb));z-index:12}
+.msgs{flex:1;overflow-y:auto;padding:4px 0}
+.inbar{display:flex;gap:8px;margin-top:8px}
+.inbar input{flex:1;height:50px;border-radius:25px;border:1.5px solid #ddd7cb;padding:0 18px;font-size:16px;background:#fff}
+.inbar input:focus{outline:none;border-color:var(--green)}
+.send{width:50px;height:50px;border-radius:25px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;flex:none}
+.cam{position:relative;flex:1;background:radial-gradient(circle at 50% 40%,#3a3833,#16151a 75%);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.frame{position:relative;width:78%;aspect-ratio:1;border-radius:22px;overflow:hidden}
+.frame .corner{position:absolute;width:34px;height:34px;border:3px solid #fff;opacity:.95}
+.shutter{width:76px;height:76px;border-radius:50%;border:4px solid #fff;display:flex;align-items:center;justify-content:center}
+.shutter i{width:58px;height:58px;border-radius:50%;background:#fff}
+.shutter:active i{transform:scale(.9)}
+.flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+.flash.go{animation:fl .25s}
+@keyframes fl{0%{opacity:.8}100%{opacity:0}}
+.sum{display:flex;align-items:center;gap:12px;background:var(--chip);border-radius:16px;padding:14px 16px;font-size:17px;font-weight:500;justify-content:center}
+.pc{margin:0 0 12px}
+.ocr{display:flex;align-items:center;gap:12px;padding:12px;border-radius:18px;background:#fff;box-shadow:0 1px 0 var(--line);margin:0 0 10px;text-align:left;width:100%}
+.ocr.on{box-shadow:0 0 0 2.5px var(--green)}
+.ocr .mini{display:grid;grid-template-columns:repeat(2,34px);gap:4px;flex:none}
+.ocr .mini .tile{border-radius:8px}
+.ocr .meta{flex:1}
+.ocr .meta b{display:block;font-size:16px;margin-bottom:3px}
+.sw2{width:51px;height:31px;border-radius:16px;background:#cbc6ba;position:relative;flex:none;transition:.2s}
+.sw2::after{content:"";position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.sw2.on{background:var(--green)}
+.sw2.on::after{left:22px}
+.sp{margin:0 0 16px;font-size:13px;color:var(--muted);padding:10px 12px;border-radius:12px;background:#f1ede4;display:flex;gap:8px;line-height:1.35}
+.panel{background:#fff;border-radius:18px;padding:14px;margin:0 0 12px;box-shadow:0 1px 0 var(--line)}
+.panel h3{margin:0 0 8px;font-size:13px;letter-spacing:.4px;text-transform:uppercase;color:var(--muted)}
+.panel button.j{display:block;width:100%;text-align:left;padding:9px 10px;border-radius:10px;font-size:14.5px}
+.panel button.j:hover{background:var(--chip)}
+.panel label{display:flex;gap:10px;align-items:center;padding:7px 4px;font-size:14.5px;cursor:pointer}
+.ic{flex:none}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="stage">
+  <aside id="side"></aside>
+  <div id="dwrap"><div id="device"><div id="app">
+    <div id="status"><span>9:41</span><i class="island"></i><span class="sbr">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M1.5 4.2a10 10 0 0 1 14 0M4 7a6.4 6.4 0 0 1 9 0"/><circle cx="8.5" cy="10" r="1.2" fill="currentColor" stroke="none"/></svg>
+      <svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x=".5" y=".5" width="23" height="12" rx="3.5" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="20" height="9" rx="2.2" fill="currentColor"/><rect x="25" y="4.2" width="1.8" height="4.6" rx=".9" fill="currentColor" opacity=".5"/></svg>
+    </span></div>
+    <div id="offline">Sin conexión. Puedes ver lo guardado.</div>
+    <main id="screen"></main>
+    <nav id="tabbar" class="tabbar hide"></nav>
+    <div id="sheetwrap"></div>
+    <div id="toast"></div>
+  </div></div></div>
+</div>
+<script>
+"use strict";
+const $=(s,r=document)=>r.querySelector(s);
+const app=$('#app'),screenEl=$('#screen');
+
+/* ---------- iconos ---------- */
+const IC={
+back:'<path d="M15 5l-7 7 7 7"/>',close:'<path d="M6 6l12 12M18 6L6 18"/>',
+more:'<circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/>',
+plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="M5 12.5l4.2 4.2L19 7"/>',
+heart:'<path d="M12 20s-7.5-4.6-7.5-10.3A4.2 4.2 0 0 1 12 7.4a4.2 4.2 0 0 1 7.5 2.3C19.5 15.4 12 20 12 20z"/>',
+download:'<path d="M12 4v11M7.5 11l4.5 4.5 4.5-4.5M5 20h14"/>',
+share:'<path d="M12 15V4M8 8l4-4 4 4M7 11H5.5v9h13v-9H17"/>',
+camera:'<path d="M4 8.5h3.2l1.6-2.2h6.4l1.6 2.2H20V19H4z"/><circle cx="12" cy="13.5" r="3.4"/>',
+image:'<rect x="4" y="5" width="16" height="14" rx="2"/><path d="M4 16l5-5 4 4 2.5-2.5L20 17"/><circle cx="9" cy="9.5" r="1"/>',
+sparkle:'<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/><path d="M18.5 16.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7z"/>',
+send:'<path d="M4.5 12L19.5 4.5 16 19.5l-3.5-6z"/>',
+hanger:'<path d="M12 8.2a2.2 2.2 0 1 0-2.2-2.2M12 8.2V10l8.3 5.2a1 1 0 0 1-.55 1.85H4.25A1 1 0 0 1 3.7 15.2L12 10"/>',
+wardrobe:'<rect x="5" y="3.5" width="14" height="17" rx="1.5"/><path d="M12 3.5v17M9.5 11.5v2.5M14.5 11.5v2.5"/>',
+user:'<circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c.9-3.8 3.7-5.8 7.5-5.8s6.6 2 7.5 5.8"/>',
+sun:'<circle cx="12" cy="12" r="3.6"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6L7 7M17 17l1.4 1.4M5.6 18.4L7 17M17 7l1.4-1.4"/>',
+info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.8v.1"/>',
+lock:'<rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>',
+search:'<circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/>',
+shirt:'<path d="M8.5 4L4 7l2 4 2-1v10h8V10l2 1 2-4-4.5-3a3.5 3.5 0 0 1-7 0z"/>',
+body:'<circle cx="12" cy="4.5" r="2"/><path d="M12 8v6.5M7.5 9.5L12 8l4.5 1.5M9.5 21l2.5-6.5 2.5 6.5"/>',
+swap:'<path d="M4 8h13M13.5 4.5L17 8l-3.5 3.5M20 16H7M10.5 12.5L7 16l3.5 3.5"/>',
+flag:'<path d="M6 21V4M6 5h11l-2 4 2 4H6"/>',
+trash:'<path d="M5 7h14M10 7V4.5h4V7M7 7l1 13h8l1-13"/>',
+pal:'<path d="M12 4a8 8 0 1 0 0 16c1.3 0 2-.8 2-1.7 0-1.3-1-1.4-1-2.5 0-1 .8-1.6 1.8-1.6H17a3 3 0 0 0 3-3c0-4-3.6-7.2-8-7.2z"/><circle cx="8" cy="11" r=".9"/><circle cx="11" cy="7.8" r=".9"/><circle cx="15" cy="8.5" r=".9"/>',
+gear:'<circle cx="12" cy="12" r="3"/><path d="M12 3v2.5M12 18.5V21M3 12h2.5M18.5 12H21M5.6 5.6l1.8 1.8M16.6 16.6l1.8 1.8M5.6 18.4l1.8-1.8M16.6 7.4l1.8-1.8"/>',
+chev:'<path d="M9 6l6 6-6 6"/>',
+down:'<path d="M6 9l6 6 6-6"/>',
+eye:'<path d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="2.8"/>',
+bolt:'<path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/>'
+};
+const ic=(n,s=24,c='')=>`<svg class="ic ${c}" width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
+
+/* ---------- datos de ejemplo ---------- */
+const G=[
+ {id:'blazer',name:'Blazer de lino',short:'Blazer',slot:'abrigo',color:'beige',crop:[284,264,520],mark:['y','Te favorece'],line:'Este beige está en tu paleta.'},
+ {id:'tee',name:'Playera blanca',short:'Playera',slot:'arriba',color:'blanco',crop:[800,275,480],mark:['m','Va bien'],line:'El blanco es un neutro que te va.'},
+ {id:'jeans',name:'Jeans rectos',short:'Jeans',slot:'abajo',color:'azul',crop:[1240,273,520]},
+ {id:'vest',name:'Chaleco negro',short:'Chaleco',slot:'arriba',color:'negro',crop:[281,749,496],mark:['n','Mejor lejos de la cara'],line:'El negro puro queda duro cerca de tu cara. Úsalo con una capa clara debajo.'},
+ {id:'pants',name:'Pantalón crema',short:'Pantalón',slot:'abajo',color:'crema',crop:[753,754,536]},
+ {id:'loafers',name:'Mocasines negros',short:'Mocasines',slot:'calzado',color:'negro',crop:[1220,781,445]}
+];
+const GB=Object.fromEntries(G.map(g=>[g.id,g]));
+const CONJ={c1:{id:'c1',n:1,name:'Con jeans',items:['blazer','tee','jeans','loafers']},c2:{id:'c2',n:2,name:'Con pantalón crema',items:['blazer','tee','pants','loafers']}};
+const SCENE_IMG=['terraza','oficina','noche'];
+const imgv=k=>`var(--i-${k})`;
+const lookKey=(cid,si)=>`${cid}_${SCENE_IMG[si]}`;
+const PAL={
+ fav:[['#D2693C','Terracota'],['#DDA343','Mostaza'],['#8E9A52','Verde oliva'],['#C28F57','Camel'],['#EBDDBF','Crema'],['#254F2E','Verde bosque'],['#AA4521','Óxido'],['#4A8880','Verde azulado'],['#D96C50','Coral suave'],['#6A3A22','Chocolate']],
+ neu:[['#F3EADB','Marfil'],['#E0CBB0','Arena'],['#A89684','Taupe'],['#6A3F27','Café'],['#4E4A47','Carbón']],
+ away:[['#CFE0EE','Azul hielo'],['#EDB9D2','Rosa chicle'],['#1B1B1B','Negro puro'],['#D0C6E0','Lavanda']]
+};
+function tile(g,extra=''){const[cx,cy,s]=g.crop,W=1536,H=1024;
+ return `<div class="tile ${extra}"><div class="spr" style="background-size:${W/s*100}% auto;background-position:${(cx-s/2)/(W-s)*100}% ${(cy-s/2)/(H-s)*100}%"></div></div>`}
+const plural=(n,a,b)=>`${n} ${n===1?a:b}`;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- estado ---------- */
+let S;const timers=[];let upTimer=null;
+function fresh(keep){return Object.assign({
+ screen:'intro',introIdx:0,stack:[],agree:{age:false,priv:false},email:'',errs:{},busy:false,
+ added:false,vestOK:false,vestType:'Chaleco',checklist:false,hasPhoto:false,photoState:'none',analyze:true,itsMe:false,palState:'none',hasPalette:false,
+ selMode:false,sel:new Set(),filter:'Todo',q:'',camShots:0,up:null,
+ armarMode:'sugerir',occasion:'Trabajo',conjSel:new Set(['c1','c2']),pick:new Set(),prio:true,
+ scenes:[{text:'Cena en una terraza al atardecer',title:'Terraza al atardecer'},{text:'Oficina luminosa con mucha luz',title:'Oficina luminosa'}],focusScene:0,
+ conjs:[],gen:null,group:'conjunto',showFavs:false,favs:new Set(),install:true,badge:false,
+ detail:null,coachLooks:false,coachDetail:false,fromTab:false
+},keep||{})}
+const TOG={offline:false,failOne:false,photoErr:false};
+S=fresh();
+
+/* ---------- utilidades de interfaz ---------- */
+let toastT;
+function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('on'),3200)}
+function sheet(html){const w=$('#sheetwrap');w.innerHTML=`<div class="back" data-act="closeSheet"></div><div class="sheet"><i class="grab"></i>${html}</div>`;w.classList.add('on');requestAnimationFrame(()=>requestAnimationFrame(()=>w.classList.add('in')))}
+function closeSheet(){const w=$('#sheetwrap');w.classList.remove('in');setTimeout(()=>{if(!w.classList.contains('in')){w.classList.remove('on');w.innerHTML=''}},230)}
+const topbar=(o={})=>`<div class="top">${o.back?`<button class="ib g" data-act="${o.back}" aria-label="Volver">${ic('back')}</button>`:'<span class="ib"></span>'}${o.title?`<span class="ttl">${o.title}</span>`:''}${o.right||'<span class="ib"></span>'}</div>`;
+const cta=(main,sec='')=>`<div class="cta">${main}${sec}</div>`;
+function setTab(on){const t=$('#tabbar');if(!on){t.classList.add('hide');return}t.classList.remove('hide');
+ const it=[['armario','Armario','wardrobe'],['armar','Armar','hanger'],['looks','Looks','shirt'],['yo','Yo','user']];
+ t.innerHTML=it.map(([id,l,i])=>id==='armar'?`<button class="tab armar" data-act="tab" data-t="armar" aria-label="Armar"><span class="pill">${ic('hanger',26)}<span>Armar</span></span></button>`
+  :`<button class="tab ${on===id?'on':''}" data-act="tab" data-t="${id}">${ic(i,26)}<span>${l}</span>${id==='looks'&&S.badge?'<i class="bd"></i>':''}</button>`).join('')}
+
+/* ---------- navegación ---------- */
+function go(id,o={}){const{replace,...rest}=o;if(!replace&&S.screen!==id)S.stack.push(S.screen);if(id!=='subiendo'){clearInterval(upTimer)}S.screen=id;Object.assign(S,rest);render()}
+function back(){const p=S.stack.pop();S.screen=p||'armario';render()}
+function render(){
+ const keep=[...screenEl.querySelectorAll('[data-sc]')].map(e=>[e.dataset.sc,e.scrollTop,e.scrollLeft]);const prev=screenEl.dataset.v;
+ const v=VIEWS[S.screen]();screenEl.innerHTML=v.html;screenEl.dataset.v=S.screen;
+ if(prev===S.screen)keep.forEach(([k,t,l])=>{const e=screenEl.querySelector(`[data-sc="${k}"]`);if(e){e.scrollTop=t;e.scrollLeft=l}});
+ setTab(v.tab);$('#status').classList.toggle('dk',!!v.dark);app.classList.toggle('off',TOG.offline);
+ v.after&&v.after()}
+
+/* ---------- pantallas ---------- */
+const VIEWS={};
+
+/* Onboarding 1: intro */
+const INTRO=[
+ {t:'Tu ropa, reconocida por IA.',d:'Sube fotos de tus prendas. Nosotros las reconocemos y las separamos por ti.',
+  vis:()=>`<div class="v1">${G.map((g,i)=>`<div class="v1c"><div style="position:relative">${tile(g)}${i<2?'<i class="scan"></i>':''}</div><span class="rc ${i<4?'ok':''}">${i<4?ic('check',12):''}${g.short}</span></div>`).join('')}</div>`},
+ {t:'Mírate con tus outfits.',d:'Elige prendas, cuenta dónde quieres verte y creamos fotos de ti. Siempre en vertical, estilo Pinterest.',
+  vis:()=>`<div style="position:relative;width:100%;height:100%"><div class="lk ph" style="position:absolute;left:4%;top:18px;width:46%;transform:rotate(-4deg);box-shadow:0 12px 28px rgba(0,0,0,.2);background-image:${imgv('c1_terraza')}"><span class="tt">Terraza al atardecer</span></div><div class="lk ph" style="position:absolute;right:2%;top:50px;width:50%;transform:rotate(3deg);box-shadow:0 12px 28px rgba(0,0,0,.22);background-image:${imgv('c1_oficina')}"><span class="tt">Oficina luminosa</span></div></div>`},
+ {t:'Cambia la escena platicando.',d:'Dile al agente «hazlo de noche» y listo. Con tu foto, además, descubrimos qué colores te favorecen.',
+  vis:()=>`<div style="width:100%"><div class="card" style="padding:14px"><div class="msg"><div class="bub u">Que sea de noche y esté lloviendo</div></div><div class="msg"><span class="av">${ic('sparkle',18)}</span><div class="bub a">Listo: la misma calle, de noche y con lluvia. Creé una versión nueva.</div></div></div><div class="card" style="margin-top:12px;display:flex;align-items:center;gap:12px"><div class="sw" style="gap:6px;flex-wrap:nowrap">${PAL.fav.slice(0,5).map(c=>`<i style="width:28px;height:28px;border-radius:50%;background:${c[0]};display:block"></i>`).join('')}</div><span style="font-size:14px"><b>Tu paleta</b><br><span class="sm">Otoño suave</span></span></div></div>`}
+];
+VIEWS.intro=()=>{const i=S.introIdx,last=i===INTRO.length-1;
+ return{html:`<div class="scr"><div class="top" style="padding:0 20px"><b style="font-family:var(--serif);font-size:24px;color:var(--green)">Armario</b><button data-act="introSkip" class="btn ghost" style="width:auto;height:44px;padding:0 4px;font-size:16px;color:var(--muted)">Saltar</button></div>
+ <div style="flex:1;overflow:hidden;margin-top:6px"><div class="track swipe" data-swipe="introSwipe" style="transform:translateX(-${i*100}%)">${INTRO.map(s=>`<div class="slide"><div class="vis">${s.vis()}</div><h1 class="t">${s.t}</h1><p class="sub">${s.d}</p></div>`).join('')}</div></div>
+ <div class="dots">${INTRO.map((_,k)=>`<i class="${k===i?'on':''}"></i>`).join('')}</div>
+ <div style="padding:0 20px calc(18px + var(--sb))">${`<button class="btn" data-act="introNext">${last?'Empezar':'Siguiente'}</button>`}</div></div>`}};
+
+/* Onboarding 2: cuenta */
+VIEWS.cuenta=()=>{const e=S.errs;
+ return{html:`<div class="scr">${topbar({back:'back'})}<div class="body nb">
+ <h1 class="t">Crea tu cuenta</h1><p class="sub">Guarda tu armario y tus looks. Solo tú los ves.</p>
+ <button class="btn sec ${S.busy?'load':''}" data-act="google" style="margin-bottom:14px"><b style="font-size:20px;font-family:Georgia">G</b> Continuar con Google</button>
+ <div style="text-align:center;color:var(--muted);font-size:14px;margin:0 0 12px">o con tu correo</div>
+ <label class="field"><span>Correo</span><input id="email" class="inp" type="email" inputmode="email" autocomplete="email" placeholder="tucorreo@ejemplo.com" data-bind="email" value="${esc(S.email)}"></label>
+ ${e.email?`<div class="err" style="margin-top:-8px;margin-bottom:10px">${ic('info',18)}<span>${e.email}</span></div>`:''}
+ <button class="cb ${S.agree.age?'on':''}" data-act="agree" data-k="age"><i>${ic('check',16)}</i><span>Soy mayor de edad</span></button>
+ <button class="cb ${S.agree.priv?'on':''}" data-act="agree" data-k="priv"><i>${ic('check',16)}</i><span>Acepto el aviso de privacidad</span></button>
+ ${e.agree?`<div class="err">${ic('info',18)}<span>${e.agree}</span></div>`:''}
+ <div class="sp" style="margin-top:12px">${ic('lock',18)}<span>Tus fotos son solo tuyas. Las usamos para reconocer tu ropa y crear tus outfits. Puedes borrarlas cuando quieras.</span></div>
+ ${e.net?`<div class="err" style="margin-bottom:10px">${ic('info',18)}<span>${e.net}</span></div>`:''}
+ <button class="btn" data-act="signup">Crear cuenta</button>
+ <button class="btn ghost" data-act="toast" data-m="En la app real aquí se inicia sesión.">Ya tengo cuenta</button></div></div>`}};
+
+/* Onboarding 3: primeras prendas */
+const stepsHTML=n=>`<div class="steps">${['Tu ropa','Tu foto','Tu primer outfit'].map((t,i)=>`<span class="${i+1===n?'on':''}" style="display:flex;gap:6px;align-items:center"><b>${i+1}</b>${t}</span>${i<2?'<i class="ln"></i>':''}`).join('')}</div>`;
+VIEWS.primeras=()=>({html:`<div class="scr">${topbar({back:'back'})}<div class="body nb">${stepsHTML(1)}
+ <h1 class="t">Empecemos por tu ropa.</h1>
+ <p class="sub">Con una prenda de arriba y una de abajo ya podemos armar tu primer outfit. Cuantas más subas, más combinaciones.</p>
+ <div class="tips"><div>${ic('shirt',26)}Prenda completa</div><div>${ic('sun',26)}Buena luz</div><div>${ic('image',26)}Superficie lisa</div></div>
+ <p class="sm" style="margin:0 0 20px">Si salen varias prendas en una foto, también las separamos.</p>
+ <button class="btn" data-act="camera" style="margin-bottom:10px">${ic('camera',22)} Tomar fotos</button>
+ <button class="btn sec" data-act="gallery" style="margin-bottom:6px">${ic('image',22)} Elegir de la galería</button>
+ <button class="btn ghost" data-act="later">Lo hago después</button></div></div>`});
+
+VIEWS.camara=()=>{const n=S.camShots,g=G[Math.min(n,5)];
+ return{dark:true,html:`<div class="scr dark"><div class="top"><button class="ib" style="color:#fff" data-act="camClose" aria-label="Cerrar">${ic('close')}</button><span class="ib"></span></div>
+ <div class="cam"><div class="frame">${tile(g)}<i class="corner" style="left:0;top:0;border-right:0;border-bottom:0;border-radius:22px 0 0 0"></i><i class="corner" style="right:0;top:0;border-left:0;border-bottom:0;border-radius:0 22px 0 0"></i><i class="corner" style="left:0;bottom:0;border-right:0;border-top:0;border-radius:0 0 0 22px"></i><i class="corner" style="right:0;bottom:0;border-left:0;border-top:0;border-radius:0 0 22px 0"></i></div><div class="flash" id="flash"></div></div>
+ <div style="padding:14px 24px 0;text-align:center;font-size:15px;line-height:1.35">Pon la prenda completa dentro del marco, sobre una superficie lisa.</div>
+ <div style="display:flex;gap:8px;justify-content:center;height:56px;align-items:center;margin-top:10px">${G.slice(0,n).map(x=>`<div style="width:46px">${tile(x)}</div>`).join('')||'<span class="sm" style="color:#9a968c">Las fotos que tomes aparecen aquí</span>'}</div>
+ <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 28px calc(18px + var(--sb))"><span style="width:90px;font-size:12px;color:#9a968c;line-height:1.2">Prototipo: cada toque usa una foto de ejemplo</span><button class="shutter" data-act="shot" aria-label="Tomar foto"><i></i></button><button data-act="camDone" class="chip ${n?'on':''}" style="width:90px;justify-content:center;${n?'':'opacity:.4'}">Listo (${n})</button></div></div>`}};
+
+/* Reconocimiento */
+function startUpload(){clearInterval(upTimer);S.up={phase:'up',n:0,paused:false};
+ upTimer=setInterval(()=>{if(S.screen!=='subiendo'){clearInterval(upTimer);return}
+  if(TOG.offline){S.up.paused=true;render();return}S.up.paused=false;S.up.n++;
+  if(S.up.phase==='up'&&S.up.n>6){S.up.phase='rec';S.up.n=0}
+  else if(S.up.phase==='rec'&&S.up.n>6){clearInterval(upTimer);S.added=true;go('revisar',{replace:true});return}
+  render()},700);render()}
+VIEWS.subiendo=()=>{const u=S.up||{phase:'up',n:0},up=u.phase==='up',n=Math.min(u.n,6);
+ const head=u.paused?'Sin conexión. Seguimos subiendo cuando vuelva.':up?`Subiendo ${n} de 6 fotos…`:`Estamos viendo tu ropa… ${n} de 6 fotos listas`;
+ const note=up?'Mantén esta pantalla abierta mientras subimos tus fotos.':'Puedes salir. Cuando vuelvas, tu ropa estará aquí.';
+ const pct=up?n/6*50:50+n/6*50;
+ return{html:`<div class="scr">${topbar({title:'Tu ropa'})}<div class="body nb"><h2 class="t">${head}</h2><div class="bar"><i style="width:${pct}%"></i></div><p class="sm" style="margin:0 0 16px">${note}</p>
+ <div class="grid2">${G.map((g,i)=>{const sub=up?i<n:true,rec=!up&&i<n;return`<div class="gi"><div style="position:relative;opacity:${sub?1:.35}">${tile(g)}${!up&&!rec&&sub?'<i class="scan"></i>':''}</div><div class="nm" style="font-size:13.5px;color:${rec?'#1c5a3d':'var(--muted)'}">${rec?ic('check',14)+' '+g.short:sub?(up?'Subida':'Mirando…'):'En espera'}</div></div>`}).join('')}</div></div></div>`}};
+
+/* Revisar */
+VIEWS.revisar=()=>{const rows=[...G].sort((a,b)=>(a.id==='vest'&&!S.vestOK?-1:0)-(b.id==='vest'&&!S.vestOK?-1:0));
+ return{html:`<div class="scr">${topbar({title:'Revisar'})}<div class="body"><h2 class="t">Encontramos 6 prendas en 6 fotos.</h2>
+ <p class="sub">${S.vestOK?'Todo listo para guardar.':'Revisa la que tiene un punto: no estamos seguros.'}</p>
+ ${rows.map(g=>{const doubt=g.id==='vest'&&!S.vestOK;return`<div class="ocr ${doubt?'on':''}" style="${doubt?'flex-direction:column;align-items:stretch;gap:12px':''}"><div style="display:flex;gap:12px;align-items:center"><div style="width:76px;flex:none">${tile(g)}</div><div class="meta"><b>${g.id==='vest'?(S.vestOK?S.vestType:'Chaleco negro'):g.name} ${doubt?'<span class="dot w"></span>':''}</b><span class="chips"><span class="chip" style="height:30px;font-size:13px">${g.slot}</span><span class="chip" style="height:30px;font-size:13px">${g.color}</span></span></div></div>
+ ${doubt?`<div><div style="font-weight:600;margin:0 0 8px">¿Es un chaleco o una blusa sin mangas?</div><div class="chips"><button class="chip ol" data-act="vest" data-v="Chaleco negro">Chaleco</button><button class="chip ol" data-act="vest" data-v="Blusa sin mangas negra">Blusa sin mangas</button><button class="chip ol" data-act="toast" data-m="En la app aquí eliges otro tipo de la lista.">Otra</button></div></div>`:''}</div>`}).join('')}
+ </div>${cta(`<button class="btn" data-act="saveGarments">Todo bien, guardar 6 prendas</button>`)}</div>`}};
+
+/* Armario */
+function marksOn(g){return S.hasPalette&&g.mark&&['arriba','abrigo'].includes(g.slot)}
+VIEWS.armario=()=>{
+ if(!S.added)return{tab:'armario',html:`<div class="scr"><div class="top" style="padding:0 20px"><h1 class="t" style="margin:0">Armario</h1></div><div class="body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding-bottom:140px">${ic('wardrobe',56,'')}<h2 class="t" style="margin-top:14px">Tu armario está vacío.</h2><p class="sub">Sube fotos de tu ropa y la reconocemos por ti.</p><button class="btn" style="max-width:260px" data-act="camera">Subir fotos</button></div></div>`};
+ const F=['Todo','Arriba','Abajo','Abrigo','Calzado',...(S.hasPalette?['Me favorecen']:[])];
+ const list=G.filter(g=>{const f=S.filter;if(f==='Todo')return true;if(f==='Me favorecen')return g.mark&&g.mark[0]==='y';return g.slot===f.toLowerCase()||(f==='Arriba'&&g.slot==='arriba')}).filter(g=>!S.q||(g.name+' '+g.color).toLowerCase().includes(S.q.toLowerCase()));
+ const n=S.sel.size;
+ const check=S.checklist&&!S.gen?`<div class="ban"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:17px">Tu primer outfit en 3 pasos</b><button class="sm" data-act="hideCheck" style="color:var(--muted)">Ocultar</button></div>
+  <div style="margin:10px 0 12px;display:flex;flex-direction:column;gap:9px;font-size:15.5px">
+  <div style="display:flex;gap:10px;align-items:center"><span class="av" style="width:24px;height:24px;border-radius:12px">${ic('check',14)}</span>Sube tu ropa</div>
+  <div style="display:flex;gap:10px;align-items:center">${S.hasPhoto?`<span class="av" style="width:24px;height:24px;border-radius:12px">${ic('check',14)}</span>`:'<span style="width:24px;height:24px;border-radius:12px;border:2px solid #b9b3a6;display:inline-block"></span>'}Agrega tu foto</div>
+  <div style="display:flex;gap:10px;align-items:center"><span style="width:24px;height:24px;border-radius:12px;border:2px solid #b9b3a6;display:inline-block"></span>Arma tu primer outfit</div></div>
+  <button class="btn sm2" data-act="tab" data-t="armar">Armar mi primer outfit</button></div>`:'';
+ return{tab:'armario',html:`<div class="scr"><div class="top" style="padding:0 20px"><h1 class="t" style="margin:0">Armario</h1><button class="btn ghost" data-act="selMode" style="width:auto;padding:0 4px;height:44px">${S.selMode?'Cancelar':'Seleccionar'}</button></div>
+ <div class="body" data-sc="arm" style="padding-bottom:${n?190:150}px">${check}
+ <label class="search">${ic('search',20)}<input id="q" placeholder="Buscar: camisa azul" data-bind="q" value="${esc(S.q)}"></label>
+ <div class="chips scx" style="margin-bottom:14px">${F.map(f=>`<button class="chip ${S.filter===f?'on':''}" data-act="filter" data-f="${f}">${f}</button>`).join('')}</div>
+ ${S.hasPalette?'':`<div class="sp" style="margin-bottom:14px">${ic('pal',18)}<span><b>Descubre qué colores te favorecen.</b> <button data-act="yoPal" style="color:var(--green);font-weight:600;text-decoration:underline">${S.hasPhoto?'Analizar mis colores':'Subir mi foto'}</button></span></div>`}
+ ${list.length?`<div class="grid2">${list.map(g=>`<button class="gi ${S.sel.has(g.id)?'on':''}" data-act="gItem" data-g="${g.id}" data-lp="${g.id}">${tile(g)}${S.selMode?`<span class="sel">${S.sel.has(g.id)?ic('check',16):''}</span>`:''}<div class="nm">${g.id==='vest'&&S.vestOK?S.vestType:g.name}</div>${g.id==='vest'&&!S.vestOK?'<span class="badge">Por revisar</span>':marksOn(g)?`<span class="mark ${g.mark[0]}">${g.mark[0]==='y'?ic('check',12):''}${g.mark[1]}</span>`:''}</button>`).join('')}</div>`:`<div style="text-align:center;padding:40px 10px;color:var(--muted)">Ninguna prenda coincide. Quita un filtro para ver más.</div>`}
+ </div>
+ ${n?`<div class="selbar"><button class="btn ${n<2?'off':''}" data-act="armarWith">Armar con estas (${n})</button></div>`:`<button class="fab" data-act="camera">${ic('plus',22)}Agregar prendas</button>`}</div>`}};
+
+/* Tu foto */
+VIEWS.foto=()=>{const p=S.photoState;
+ return{html:`<div class="scr">${topbar({back:'back'})}<div class="body">
+ ${S.fromTab?`<div class="sp" style="margin-bottom:12px">${ic('shirt',18)}<span>Tus prendas te esperan: solo falta tu foto.</span></div>`:''}${stepsHTML(2)}
+ <h1 class="t">Ahora, tú.</h1><p class="sub">Sube una foto tuya de pies a cabeza para vestirte con tu ropa.</p>
+ ${p==='none'?`<div class="tips" style="flex-wrap:wrap"><div>${ic('body',26)}De pie y de frente</div><div>${ic('user',26)}Cuerpo completo</div><div>${ic('sun',26)}Buena luz</div><div>${ic('lock',26)}Solo tú</div></div>
+ <button class="btn" data-act="pickPhoto" style="margin-bottom:10px">${ic('camera',22)} Tomar foto</button><button class="btn sec" data-act="pickPhoto">${ic('image',22)} Elegir de la galería</button><p class="sm" style="margin:12px 0 0;text-align:center">Prototipo: se usa una foto de ejemplo.</p>`
+ :`<div style="display:flex;gap:16px;align-items:flex-start;margin-bottom:12px"><div class="ph" style="width:132px;aspect-ratio:2/3;border-radius:16px;flex:none;background-image:${imgv('base')}"></div><div style="padding-top:6px">${p==='checking'?`<b>Mirando tu foto…</b><div class="bar" style="width:140px"><i style="width:70%"></i></div>`:p==='ok'?`<b style="color:#1c5a3d;display:flex;gap:6px;align-items:center">${ic('check',18)} Listo, ya sabemos cómo vestirte.</b>`:`<div class="err" style="margin:0">${ic('info',18)}<span>No se ve tu cuerpo completo. Prueba con una foto de pies a cabeza.</span></div><button class="btn sec sm2" style="margin-top:12px" data-act="pickPhoto">Elegir otra foto</button>`}</div></div>
+ ${p==='ok'?`<button class="cb ${S.itsMe?'on':''}" data-act="itsMe"><i>${ic('check',16)}</i><span><b>Soy yo en esta foto.</b><br><span class="sm">Usamos tu foto solo para vestirte en tus outfits. Nadie más la ve y puedes borrarla cuando quieras.</span></span></button>
+ <button class="cb ${S.analyze?'on':''}" data-act="analyze"><i>${ic('check',16)}</i><span><b>Analizar mis colores con esta foto.</b><br><span class="sm">Te decimos qué colores te favorecen. Solo se mira tu tono de piel, tu cabello y tus ojos, y puedes borrar el resultado cuando quieras.</span></span></button>`:''}`}
+ </div>${p==='ok'?cta(`<button class="btn ${S.itsMe?'':'off'}" data-act="fotoNext">Continuar</button>`):''}</div>`}};
+
+/* Tu paleta */
+VIEWS.paleta=()=>{
+ if(S.palState!=='done')return{html:`<div class="scr">${topbar({})}<div class="body nb" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center"><div class="ph" style="width:132px;height:132px;border-radius:50%;background-image:${imgv('base')};background-size:260% auto;background-position:48% 5.5%"></div><h2 class="t" style="margin-top:20px">Mirando tus colores…</h2><div class="sw" style="justify-content:center;margin-top:10px;gap:8px">${PAL.fav.slice(0,6).map((c,i)=>`<i style="width:30px;height:30px;border-radius:50%;background:${c[0]};display:block;animation:sh 1.2s ${i*.15}s infinite alternate;opacity:.9"></i>`).join('')}</div></div></div>`};
+ const sw=(a,cls='')=>`<div class="sw ${cls}">${a.map(c=>`<button style="background:${c[0]}" data-act="swatch" data-n="${c[1]}" aria-label="${c[1]}"></button>`).join('')}</div>`;
+ return{html:`<div class="scr">${topbar({right:`<button class="btn ghost" data-act="palSkip" style="width:auto;padding:0 12px;height:44px;color:var(--muted)">Ahora no</button>`})}<div class="body" data-sc="pal">
+ <div style="display:flex;gap:16px;align-items:center;margin:0 0 14px"><div class="ph" style="width:78px;height:78px;border-radius:50%;flex:none;background-image:${imgv('base')};background-size:260% auto;background-position:48% 5.5%"></div><div><h1 class="t" style="margin:0 0 4px;font-size:30px">Tu paleta</h1><span class="sub" style="margin:0;font-size:15px">Otoño suave: tonos cálidos y apagados.</span></div></div>
+ <div class="chips" style="margin-bottom:14px"><span class="chip">Subtono cálido</span><span class="chip">Profundidad media</span><span class="chip">Contraste suave</span></div>
+ <div class="card pc"><b>Te favorecen</b><div style="height:10px"></div>${sw(PAL.fav)}</div>
+ <div class="card pc"><b>Neutros que te van</b><div style="height:10px"></div>${sw(PAL.neu)}</div>
+ <div class="card pc"><b>Mejor lejos de la cara</b><div style="height:10px"></div>${sw(PAL.away,'dim')}</div>
+ <div style="display:flex;align-items:center;gap:10px;margin:2px 0 10px"><i style="width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#f1d37c,#b98b2a);display:block"></i><span>Dorado</span></div>
+ <div class="sp">${ic('info',18)}<span>Es una estimación a partir de tu foto. La luz y los filtros pueden cambiarla.</span></div></div>
+ ${cta(`<button class="btn" data-act="palGo">Ver outfits con mis colores</button>`,`<button class="btn ghost" data-act="palAdjust">Ajustar mi paleta</button>`)}</div>`}};
+
+/* Armar paso 1 */
+function pickConjs(){
+ if(S.armarMode==='sugerir'){return{conjs:['c1','c2'].filter(c=>S.conjSel.has(c)&&S.occasion!=='Deporte'),msg:'Elige al menos un conjunto.'}}
+ const p=S.pick;if(!p.has('tee'))return{conjs:[],msg:'Todavía no hay con qué armar un outfit. Te falta una prenda de arriba.'};
+ const c=[];if(p.has('jeans'))c.push('c1');if(p.has('pants'))c.push('c2');
+ return c.length?{conjs:c}:{conjs:[],msg:'Todavía no hay con qué armar un outfit. Te falta una prenda de abajo.'}}
+VIEWS.armar1=()=>{const pc=pickConjs(),n=pc.conjs.length;
+ const suger=()=>S.occasion==='Deporte'?`<div class="sp">${ic('info',18)}<span>Con lo que hay en tu armario no salen conjuntos para Deporte. Sube más ropa o prueba otra ocasión.</span></div>`:['c1','c2'].map(id=>{const c=CONJ[id],on=S.conjSel.has(id);
+  return`<button class="ocr ${on?'on':''}" data-act="conjTog" data-c="${id}"><div class="mini">${c.items.map(i=>tile(GB[i])).join('')}</div><div class="meta"><b>Conjunto ${c.n}</b><span class="sm">Blazer, playera, ${id==='c1'?'jeans':'pantalón crema'} y mocasines</span>${S.hasPalette&&S.prio?`<div style="margin-top:6px"><span class="mark y">${ic('check',12)}Te favorece</span></div>`:''}</div><span class="cb ${on?'on':''}" style="width:auto;padding:0"><i>${ic('check',16)}</i></span></button>`}).join('');
+ return{html:`<div class="scr"><div class="top"><button class="ib g" data-act="armarBack" aria-label="Volver">${ic('back')}</button><span class="ttl">Paso 1 de 2</span><button class="ib" data-act="armarClose" aria-label="Salir">${ic('close')}</button></div>
+ <div class="body" data-sc="a1"><h2 class="t" style="margin-bottom:12px">¿Con qué prendas?</h2>
+ <div class="seg" style="margin-bottom:16px"><button class="${S.armarMode==='elegir'?'on':''}" data-act="mode" data-v="elegir">Elegir yo</button><button class="${S.armarMode==='sugerir'?'on':''}" data-act="mode" data-v="sugerir">Sugerir</button></div>
+ ${S.armarMode==='sugerir'?`<div class="chips scx" style="margin-bottom:14px">${['Trabajo','Casual','Salida','Deporte','Evento'].map(o=>`<button class="chip ${S.occasion===o?'on':''}" data-act="occ" data-v="${o}">${o}</button>`).join('')}</div>
+  ${S.hasPalette?`<div class="ban" style="display:flex;align-items:center;gap:12px;padding:12px 16px"><div style="flex:1"><b>Priorizar mis colores</b><div class="sm">Ordenamos los conjuntos por cuánto te favorecen.</div></div><button class="sw2 ${S.prio?'on':''}" data-act="prio" role="switch" aria-checked="${S.prio}" aria-label="Priorizar mis colores"></button></div>`:`<div class="sp">${ic('pal',18)}<span>Sugerimos con lo que hay, sin tus colores. <button data-act="toast" data-m="Aquí se abre Tu foto." style="color:var(--green);font-weight:600;text-decoration:underline">Subir mi foto</button> y analizamos cuáles te favorecen.</span></div>`}
+  ${suger()}`
+ :`<div class="grid2">${G.map(g=>{const on=S.pick.has(g.id);return`<button class="gi ${on?'on':''}" data-act="pick" data-g="${g.id}">${tile(g)}<span class="sel">${on?ic('check',16):''}</span><div class="nm">${g.name}</div>${g.id==='vest'&&!S.vestOK?'<span class="badge">Por revisar</span>':''}</button>`}).join('')}</div>
+  ${n===0?`<div class="sp" style="margin-top:14px">${ic('info',18)}<span>${pc.msg}</span></div>`:''}`}
+ </div>${cta(`<button class="btn ${n?'':'off'}" data-act="a1next">Siguiente${n?` · ${plural(n,'conjunto','conjuntos')}`:''}</button>`)}</div>`}};
+
+/* Armar paso 2 */
+const WARN_CLOTHES=/vestido|camisa|pantal|falda|playera|blazer|zapat|ropa|chamarra|suéter|sueter/i,WARN_FMT=/horizontal|cuadrad|panor|landscape/i;
+function sceneWarn(t){return WARN_FMT.test(t)?'Todas las fotos salen en vertical. Describe solo el lugar.':WARN_CLOTHES.test(t)?'La ropa sale de tu armario. Aquí describe solo el lugar.':''}
+function sumText(){const c=S.conjs.length,s=S.scenes.length;return`${plural(c,'conjunto','conjuntos')} × ${plural(s,'escena','escenas')} = ${plural(c*s,'imagen','imágenes')}`}
+VIEWS.armar2=()=>{const tot=S.conjs.length*S.scenes.length,over=tot>12;
+ return{html:`<div class="scr"><div class="top"><button class="ib g" data-act="back" aria-label="Volver">${ic('back')}</button><span class="ttl">Paso 2 de 2</span><button class="ib" data-act="armarClose" aria-label="Salir">${ic('close')}</button></div>
+ <div class="body" data-sc="a2" style="padding-bottom:190px"><h2 class="t" style="text-align:center;font-size:27px">¿Dónde quieres verte?</h2><p class="sub" style="text-align:center">Cuéntalo como se lo contarías a una amiga: lugar, hora, ambiente.</p>
+ ${S.scenes.map((s,i)=>`<div style="margin:0 0 12px"><div style="position:relative"><textarea class="ta" data-scene="${i}" maxlength="280" placeholder="Cena en una terraza al atardecer" aria-label="Escena ${i+1}">${esc(s.text)}</textarea><span class="cnt" id="cnt${i}">${s.text.length}/280</span></div><div class="err" id="w${i}" style="${sceneWarn(s.text)?'':'display:none'};margin:4px 4px 0">${ic('info',18)}<span>${sceneWarn(s.text)}</span></div></div>`).join('')}
+ ${S.scenes.length<3?`<button class="btn ghost" data-act="addScene" style="justify-content:flex-start;width:auto;padding:0 4px">${ic('plus',22)} Agregar otra escena</button>`:`<p class="sm" style="margin:0 0 6px">En el prototipo hay fotos para 3 escenas (en la app, hasta 4).</p>`}
+ <div class="sm" style="margin:10px 0 8px;font-size:15px">Ideas para inspirarte</div><div class="chips">${['Oficina luminosa','Cafetería','Calle al atardecer','Playa','Fiesta de noche'].map(c=>`<button class="chip ol" data-act="idea" data-v="${c}">${c}</button>`).join('')}</div>
+ <p class="sm" style="margin:14px 0 0;display:flex;gap:8px;align-items:center">${ic('info',18)}Todas tus fotos salen en vertical, estilo Pinterest.</p>
+ <p class="sm" style="margin:8px 0 0;padding-left:26px">Si no escribes nada, usamos un fondo de estudio liso.</p></div>
+ ${cta(`<div class="sum" id="sum" style="margin-bottom:10px;${over?'background:#fbe9dc;color:#a24610;font-size:15px;line-height:1.3':''}">${over?'Máximo 12 imágenes por tanda. Baja los conjuntos o las escenas.':ic('hanger',22)+sumText()}</div><button class="btn ${over?'off':''}" id="a2btn" data-act="a2go">Armar outfits</button>`)}</div>`}};
+
+/* Looks */
+function readyAll(){S.conjs=S.conjs.length?S.conjs:['c1','c2'];const items=[];S.conjs.forEach(c=>S.scenes.forEach((_,si)=>items.push(c+':'+si)));S.gen={total:items.length,items,ready:new Set(items),failed:new Set(),dropped:new Set(),done:true,cancelled:false}}
+function startGen(){timers.splice(0).forEach(clearTimeout);const items=[];S.conjs.forEach(c=>S.scenes.forEach((_,si)=>items.push(c+':'+si)));
+ const g=S.gen={total:items.length,items,ready:new Set(),failed:new Set(),dropped:new Set(),done:false,cancelled:false};
+ items.forEach((k,i)=>timers.push(setTimeout(()=>{if(S.gen!==g||g.cancelled)return;if(TOG.failOne&&i===1)g.failed.add(k);else g.ready.add(k);genCheck()},1500+i*1300)))}
+function genCheck(){const g=S.gen;if(!g)return;if(g.ready.size+g.failed.size>=g.total&&!g.done&&!g.failed.size){g.done=true;toast(`Listo: ${plural(g.total,'look','looks')}.`);if(S.screen==='looks'&&!S.coachSeen){S.coachLooks=true;S.coachSeen=true}}
+ else if(g.ready.size+g.failed.size>=g.total&&g.failed.size){/* espera el reintento */}
+ if(S.screen==='looks')render();else if(S.screen!=='looks'){S.badge=true;setTab(S.screen==='armario'?'armario':S.screen==='yo'?'yo':null)}}
+function kText(k){const[c,si]=k.split(':');return{c,si:+si}}
+VIEWS.looks=()=>{const g=S.gen;
+ if(!g)return{tab:'looks',html:`<div class="scr"><div class="top" style="padding:0 20px"><h1 class="t" style="margin:0">Looks</h1></div><div class="body" style="display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center">${ic('shirt',56)}<h2 class="t" style="margin-top:14px">Aquí verás tus outfits.</h2><p class="sub">Elige prendas y arma tu primera tanda.</p><button class="btn" style="max-width:300px" data-act="tab" data-t="armar">Armar mi primer outfit</button></div></div>`};
+ const card=(c,si,mode)=>{const k=c+':'+si;if(g.dropped.has(k))return'';if(S.showFavs&&!S.favs.has(k))return'';
+  const st=g.ready.has(k)?'r':g.failed.has(k)?'f':'w',title=S.scenes[si].title;
+  if(st==='w')return`<div class="lk sk"><i class="sk-i">${ic('sparkle',26)}</i><span>Creando…</span></div>`;
+  if(st==='f')return`<div class="lk sk" style="animation:none;background:#efe9de"><span style="font-weight:600;color:#6b3b2a">No salió</span><button class="btn sec sm2" style="width:auto;padding:0 18px;height:40px" data-act="retry" data-k="${k}">Reintentar</button></div>`;
+  return`<div class="lk ph" data-act="open" data-k="${k}" style="background-image:${imgv(lookKey(c,si))}" role="img" aria-label="${mode==='c'?title:CONJ[c].name}"><span class="tt">${mode==='c'?esc(title):CONJ[c].name}</span><button class="hrt ${S.favs.has(k)?'on':''}" data-act="fav" data-k="${k}" aria-label="Favorito">${ic('heart',26)}</button></div>`};
+ const strip=c=>`<div class="strip">${CONJ[c].items.map(i=>`<div class="tg">${tile(GB[i])}${S.hasPalette&&marksOn(GB[i])?'<i class="dot"></i>':''}</div>`).join('')}</div>`;
+ const secs=S.group==='conjunto'?S.conjs.map(c=>{const cards=S.scenes.map((_,si)=>card(c,si,'c')).join('');return cards.trim()?`<section class="conj"><div class="conj-h">${strip(c)}<button class="ib" data-act="toast" data-m="Aquí: Quitar conjunto · Probar con otra escena" aria-label="Más opciones">${ic('more')}</button></div><div class="car" data-sc="car-${c}">${cards}</div></section>`:''}).join('')
+ :S.scenes.map((s,si)=>{const cards=S.conjs.map(c=>card(c,si,'s')).join('');return cards.trim()?`<section class="conj"><div class="conj-h"><div style="flex:1"><b style="font-size:18px;font-family:var(--serif)">${esc(s.title)}</b><div class="sm">${esc(s.text.slice(0,48))}${s.text.length>48?'…':''}</div></div><button class="ib" data-act="toast" data-m="Aquí: Probar esta escena con otro conjunto" aria-label="Más opciones">${ic('more')}</button></div><div class="car" data-sc="car-s${si}">${cards}</div></section>`:''}).join('');
+ const gen=!g.done&&!g.cancelled,nF=g.failed.size,nR=g.ready.size;
+ return{tab:'looks',html:`<div class="scr"><div class="top" style="padding:0 20px"><h1 class="t" style="margin:0">Looks</h1></div>
+ <div class="body" data-sc="lk" style="padding-bottom:140px"><div class="seg" style="margin-bottom:8px"><button class="${!S.showFavs?'on':''}" data-act="seg" data-k="showFavs" data-v="0">Todos</button><button class="${S.showFavs?'on':''}" data-act="seg" data-k="showFavs" data-v="1">Favoritos</button></div>
+ <div class="seg" style="margin-bottom:14px"><button class="${S.group==='conjunto'?'on':''}" data-act="seg" data-k="group" data-v="conjunto">Por conjunto</button><button class="${S.group==='escena'?'on':''}" data-act="seg" data-k="group" data-v="escena">Por escena</button></div>
+ <div style="display:flex;justify-content:space-between;align-items:center;margin:0 0 12px"><button class="chip" data-act="toast" data-m="Aquí eliges una tanda anterior.">Tanda de hoy · ${plural(g.total-g.dropped.size,'look','looks')} ${ic('down',16)}</button><button class="btn ghost" style="width:auto;height:36px;padding:0 4px;font-size:15px" data-act="tab" data-t="armar">${ic('plus',18)} Armar más</button></div>
+ ${gen?`<div class="ban"><b>Armando tus outfits… ${nR} de ${g.total} listos</b><div class="bar"><i style="width:${(nR+nF)/g.total*100}%"></i></div><div class="sm">Suele tardar un par de minutos. Puedes salir; cuando vuelvas, tus outfits estarán aquí.</div><div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap"><button class="btn ghost" style="width:auto;height:40px;padding:0 6px;font-size:15px" data-act="cancelGen">Cancelar lo que falta</button>${nF?`<button class="btn ghost" style="width:auto;height:40px;padding:0 6px;font-size:15px" data-act="retryAll">Reintentar las ${nF} que faltan</button>`:''}</div></div>`:''}
+ ${S.showFavs&&!S.favs.size?`<div style="text-align:center;padding:40px 10px;color:var(--muted)"><b style="display:block;color:var(--ink);font-size:18px;margin-bottom:6px">Todavía no hay favoritos.</b>Toca el corazón en los looks que te gusten y los juntamos aquí.</div>`:secs}
+ ${g.done&&S.install&&!S.showFavs?`<div class="ban" style="margin-top:6px"><b>Agrega Armario a tu inicio</b><div class="sm" style="margin:4px 0 8px">Ábrelo como una app, a pantalla completa.</div><div style="display:flex;gap:8px"><button class="btn sm2" style="flex:1" data-act="howInstall">Cómo hacerlo</button><button class="btn sm2 sec" style="flex:1" data-act="noInstall">Ahora no</button></div></div>`:''}
+ <p class="sm" style="margin:6px 0 0;display:flex;gap:8px">${ic('info',16)}<span>Prototipo: las fotos son de ejemplo y no cambian con tu texto.</span></p></div>
+ ${S.coachLooks?`<div class="coach up" style="top:calc(var(--st) + 140px)">Desliza para ver el mismo conjunto en otras escenas.<button data-act="coachLooks">Entendido</button></div>`:''}</div>`}};
+
+/* Detalle */
+function dKeys(){const d=S.detail;return S.scenes.map((_,si)=>d.cid+':'+si).filter(k=>S.gen.ready.has(k))}
+function dImgKey(){const d=S.detail,v=d.vers[d.vIdx];return v.key}
+VIEWS.detalle=()=>{const d=S.detail,keys=dKeys(),k=d.cid+':'+d.si,chat=d.chat,fav=S.favs.has(k),title=S.scenes[d.si].title;
+ const photo=`<div class="dimg swipe ph" data-swipe="dnav" id="dimg" style="width:${chat?'var(--iw)':'100%'};background-image:${imgv(dImgKey())}" role="img" aria-label="Look: ${esc(title)}">${!chat&&keys.length>1?`<div class="pg">${keys.map(x=>`<i class="${x===k?'on':''}"></i>`).join('')}</div>`:''}<span class="tt" style="position:absolute;left:12px;bottom:14px;background:#fff;border-radius:12px;padding:6px 10px;font-size:13.5px;max-width:60%;box-shadow:0 2px 8px rgba(0,0,0,.16)">${esc(title)}</span></div>
+ <div class="dfl"><button class="fb ${fav?'on':''}" data-act="fav" data-k="${k}" aria-label="Favorito">${ic('heart',24)}</button><button class="fb" data-act="save" aria-label="Guardar">${ic('download',24)}</button><button class="fb" data-act="shareLook" aria-label="Compartir">${ic('share',24)}</button></div>`;
+ const vers=`<div style="display:flex;gap:10px;overflow-x:auto;padding:2px 0 8px">${d.vers.map((v,i)=>`<button class="vth ${i===d.vIdx?'on':''}" data-act="ver" data-i="${i}"><div class="ph" style="background-image:${imgv(v.key)}"></div>${v.label}</button>`).join('')}</div>`;
+ if(!chat)return{html:`<div class="scr chat0" style="padding-top:0"><div class="body nb" data-sc="det" style="padding:0 0 130px"><div style="height:calc(var(--st) + var(--off))"></div>${topbar({back:'back',right:`<button class="ib" data-act="dmenu" aria-label="Más opciones">${ic('more')}</button>`})}
+  <div class="dstage" style="margin-top:2px">${photo}</div>
+  <div style="padding:14px 20px 0"><div class="sm" style="margin:0 0 6px;font-weight:600;color:var(--ink)">Versiones</div>${vers}
+  <div class="sm" style="margin:12px 0 8px;font-weight:600;color:var(--ink)">Prendas en este look</div><div style="display:flex;gap:10px;overflow-x:auto;padding-bottom:6px">${CONJ[d.cid].items.map(i=>{const g=GB[i];return`<div style="flex:none;width:84px">${tile(g)}<div style="font-size:12px;margin:5px 0 3px;line-height:1.2">${g.short}</div>${marksOn(g)?`<span class="mark ${g.mark[0]}" style="font-size:11px;padding:2px 6px">${g.mark[1]}</span>`:''}</div>`}).join('')}</div></div></div>
+  ${cta(`<button class="btn" data-act="chatOpen">${ic('sparkle',22)} Cambiar escena</button>`)}
+  ${S.coachDetail?`<div class="coach up" style="bottom:calc(98px + var(--sb))">Toca «Cambiar escena» para platicar con el agente y cambiar el lugar, la hora o la luz.<button data-act="coachDetail">Entendido</button></div>`:''}</div>`};
+ const msgs=d.msgs.map(m=>m.r==='u'?`<div class="msg"><div class="bub u">${esc(m.t)}</div></div>`:`<div class="msg"><span class="av">${ic('sparkle',18)}</span><div class="bub a">${m.t}</div></div>`).join('');
+ const chips=d.busy?[]:(d.chips||['Hazlo de noche','Cambia el lugar','Más luz','Más cerca']);
+ return{html:`<div class="scr chat" style="padding-top:0;--iw:200px" id="dscr"><div style="height:calc(var(--st) + var(--off))"></div>${topbar({back:'back',right:`<button class="ib" data-act="dmenu" aria-label="Más opciones">${ic('more')}</button>`})}
+  <div class="dstage" id="dst" style="margin-top:2px">${photo}</div>
+  <div class="csheet" id="csh" style="height:var(--ch,54%)"><i class="grab" style="margin-bottom:8px"></i>${vers}
+  ${msgs?'':'<h3 style="font-family:var(--serif);font-size:22px;margin:0 0 6px">Cambia la escena</h3>'}
+  <div class="msgs" id="msgs" data-sc="msgs">${msgs||`<div class="msg"><span class="av">${ic('sparkle',18)}</span><div class="bub a">¿Qué quieres cambiar de la escena?</div></div>`}${d.busy?`<div class="msg"><span class="av">${ic('sparkle',18)}</span><div class="bub a" style="color:var(--muted)">Creando la versión ${d.vers.length+1}… suele tardar unos segundos.</div></div>`:''}</div>
+  <div class="chips scx" style="margin:6px -16px 0;padding:0 16px">${chips.map(c=>`<button class="chip ol" data-act="chip" data-v="${esc(c)}">${c}</button>`).join('')}</div>
+  <div class="sm" style="margin:6px 2px 0;font-size:12.5px">Cada cambio crea 1 imagen nueva.</div>
+  <form class="inbar" data-act="chatSend" onsubmit="return false"><input id="cin" placeholder="Cuéntame qué cambiar" aria-label="Mensaje" ${d.busy?'disabled':''} autocomplete="off"><button type="submit" class="send ${d.busy?'':''}" data-act="chatSend" aria-label="Enviar" ${d.busy?'disabled style="opacity:.5"':''}>${ic('send',22)}</button></form></div></div>`,
+  after(){layoutChat()}}};
+function layoutChat(){const sc=$('#dscr');if(!sc)return;const H=app.clientHeight,st=parseFloat(getComputedStyle(sc).getPropertyValue('--st'))||0;
+ const sheetH=Math.round(H*.54),topH=(parseFloat(getComputedStyle(document.body).getPropertyValue('--st'))||0)+(app.classList.contains('off')?30:0)+52+2;const avail=H-sheetH-topH-14;
+ sc.style.setProperty('--iw',Math.round(avail/1.5)+'px');sc.style.setProperty('--ch',sheetH+'px');const m=$('#msgs');if(m)m.scrollTop=m.scrollHeight}
+
+/* Yo */
+function protoPanel(){return`<div class="panel"><h3>Ir a una pantalla</h3>
+ <b style="display:block;font-size:12px;margin:6px 10px 2px;color:var(--green)">Onboarding</b>
+ ${[['intro0','1 · Intro, lámina 1'],['intro1','Intro, lámina 2'],['intro2','Intro, lámina 3'],['cuenta','2 · Cuenta y consentimientos'],['primeras','3 · Primeras prendas'],['camara','Cámara con guía'],['reconoce','Subiendo y reconociendo'],['revisar','Revisar (con una duda)'],['armario0','Armario con guía de 3 pasos']].map(([k,l])=>`<button class="j" data-act="jump" data-to="${k}">${l}</button>`).join('')}
+ <b style="display:block;font-size:12px;margin:10px 10px 2px;color:var(--green)">Armar</b>
+ ${[['foto','Tu foto'],['paleta','Tu paleta'],['armar1','Paso 1 · Prendas'],['armar2','Paso 2 · Escenas']].map(([k,l])=>`<button class="j" data-act="jump" data-to="${k}">${l}</button>`).join('')}
+ <b style="display:block;font-size:12px;margin:10px 10px 2px;color:var(--green)">Looks</b>
+ ${[['gen','Generando'],['looks','Looks listos'],['detalle','Detalle de un look'],['chat','Detalle con chat'],['yo','Yo']].map(([k,l])=>`<button class="j" data-act="jump" data-to="${k}">${l}</button>`).join('')}</div>
+ <div class="panel"><h3>Simular estados</h3>
+ <label><input type="checkbox" data-act="tog" data-k="offline" ${TOG.offline?'checked':''}> Sin conexión</label>
+ <label><input type="checkbox" data-act="tog" data-k="failOne" ${TOG.failOne?'checked':''}> Una imagen falla al generar</label>
+ <label><input type="checkbox" data-act="tog" data-k="photoErr" ${TOG.photoErr?'checked':''}> Tu foto con problema</label></div>
+ <button class="btn sec sm2" data-act="reset">Reiniciar prototipo</button>`}
+VIEWS.yo=()=>({tab:'yo',html:`<div class="scr"><div class="top" style="padding:0 20px"><h1 class="t" style="margin:0">Yo</h1></div><div class="body" data-sc="yo">
+ <div style="display:flex;align-items:center;gap:14px;margin:0 0 14px"><div class="ph" style="width:72px;height:72px;border-radius:50%;background-image:${imgv('base')};background-size:260% auto;background-position:48% 5.5%"></div><div><b style="font-size:19px">Tú</b><div class="sm">${esc(S.email)||'tucorreo@ejemplo.com'}</div></div></div>
+ <div class="card" style="padding:4px 16px"><button class="row" data-act="yoFoto"><span class="grow">Tu foto<span class="sm">${S.hasPhoto?'Cambiar o borrar':'Todavía no subes una'}</span></span>${ic('chev',20)}</button>
+ <button class="row" data-act="yoPal"><span class="grow">Mi paleta<span class="sm">${S.hasPalette?'Otoño suave':'Descubre qué colores te favorecen'}</span></span>${ic('chev',20)}</button>
+ <button class="row" data-act="yoPriv"><span class="grow">Ajustes y privacidad</span>${ic('chev',20)}</button></div>
+ <div id="yoproto" class="panel" style="margin-top:16px;background:#f1ede4;box-shadow:none"><h3>Opciones del prototipo</h3>${protoPanel()}</div>
+ <button class="btn ghost" data-act="reset" style="margin-top:8px;color:var(--muted)">Cerrar sesión</button></div></div>`});
+
+/* ---------- acciones ---------- */
+const A={};
+A.back=()=>back();
+A.toast=el=>toast(el.dataset.m);
+A.closeSheet=()=>closeSheet();
+A.tab=el=>{const t=el.dataset.t;if(t==='armar'){if(!S.added){toast('Primero sube algunas prendas para poder armar un outfit.');return go('armario')}
+  if(!S.hasPhoto){S.photoState='none';S.itsMe=false;return go('foto',{fromTab:true})}return go('armar1',{stack:[],armarMode:S.armarMode})}
+ if(t==='looks')S.badge=false;S.stack=[];S.screen=t;S.selMode=false;render()};
+A.introNext=()=>{if(S.introIdx<2){S.introIdx++;render()}else go('cuenta')};
+A.introSkip=()=>go('cuenta');
+A.introSwipe=dir=>{S.introIdx=Math.max(0,Math.min(2,S.introIdx+dir));render()};
+A.agree=el=>{S.agree[el.dataset.k]=!S.agree[el.dataset.k];S.errs.agree='';render()};
+function validate(needMail){const e={};if(needMail){const em=($('#email')?.value||S.email).trim();S.email=em;if(!/^\S+@\S+\.\S+$/.test(em))e.email='Revisa tu correo: parece que le falta algo.'}
+ if(!S.agree.age||!S.agree.priv)e.agree='Marca las dos casillas para continuar.';if(TOG.offline)e.net='Sin conexión. Reintenta cuando vuelva.';S.errs=e;return!Object.keys(e).length}
+A.signup=()=>{if(!validate(true))return render();S.errs={};go('primeras')};
+A.google=()=>{if(!validate(false))return render();S.busy=true;render();setTimeout(()=>{S.busy=false;S.errs={};if(!S.email)S.email='sofia@ejemplo.com';go('primeras')},800)};
+A.camera=()=>{if(!S.camAsked)return sheet(`<h3>Vamos a usar tu cámara</h3><p class="sub" style="margin-top:0">La usamos solo para fotografiar tu ropa. Tu teléfono te va a pedir permiso en el siguiente paso.</p><button class="btn" data-act="camGo">Continuar</button><button class="btn ghost" data-act="galleryFromSheet">Prefiero elegir de la galería</button>`);S.camShots=0;go('camara')};
+A.camGo=()=>{S.camAsked=true;closeSheet();S.camShots=0;go('camara')};
+A.galleryFromSheet=()=>{closeSheet();A.gallery()};
+A.camClose=()=>{S.screen=S.stack.pop()||'armario';render()};
+A.shot=()=>{const f=$('#flash');f&&(f.classList.remove('go'),void f.offsetWidth,f.classList.add('go'));if(S.camShots<6){S.camShots++;setTimeout(render,120)}};
+A.camDone=()=>{if(!S.camShots)return toast('Toma al menos una foto.');go('subiendo',{replace:true});startUpload()};
+A.gallery=()=>{S.camShots=6;go('subiendo',{replace:true});startUpload()};
+A.later=()=>{S.added=false;S.checklist=true;go('armario',{replace:true,stack:[]})};
+A.vest=el=>{S.vestOK=true;S.vestType=el.dataset.v.replace(/ negra?$/,'');render()};
+A.saveGarments=()=>{S.added=true;S.checklist=true;toast('Guardamos tus 6 prendas.');go('armario',{replace:true,stack:[]})};
+A.hideCheck=()=>{S.checklist=false;render()};
+A.selMode=()=>{S.selMode=!S.selMode;S.sel=new Set();render()};
+A.filter=el=>{S.filter=el.dataset.f;render()};
+A.gItem=el=>{const id=el.dataset.g;if(S.selMode){S.sel.has(id)?S.sel.delete(id):S.sel.add(id);if(!S.sel.size)S.selMode=false;return render()}
+ const g=GB[id];sheet(`<div style="display:flex;gap:16px;align-items:center;margin-bottom:12px"><div style="width:120px;flex:none">${tile(g)}</div><div><h3 style="margin:0 0 6px">${id==='vest'&&S.vestOK?S.vestType:g.name}</h3><div class="chips"><span class="chip" style="height:30px;font-size:13px">${g.slot}</span><span class="chip" style="height:30px;font-size:13px">${g.color}</span></div></div></div>
+ ${S.hasPalette&&g.line?`<div class="sp">${ic('pal',18)}<span>${g.line}</span></div>`:''}<button class="row" data-act="closeSheet">${ic('shirt',22)}<span class="grow">Looks con esta prenda</span></button><button class="row" data-act="closeSheet" style="color:var(--red)">${ic('trash',22)}<span class="grow">Quitar</span></button>`)};
+A.lp=el=>{S.selMode=true;S.sel=new Set([el]);render()};
+A.armarWith=()=>{if(S.sel.size<2)return toast('Elige al menos 2 prendas.');S.pick=new Set(S.sel);S.armarMode='elegir';S.selMode=false;S.sel=new Set();
+ if(!S.hasPhoto){S.fromTab=true;S.photoState='none';S.itsMe=false;return go('foto')}go('armar1')};
+A.pickPhoto=()=>{S.photoState='checking';render();setTimeout(()=>{if(S.screen!=='foto')return;S.photoState=TOG.photoErr?'error':'ok';render()},1400)};
+A.itsMe=()=>{S.itsMe=!S.itsMe;render()};
+A.analyze=()=>{S.analyze=!S.analyze;render()};
+A.fotoNext=()=>{if(!S.itsMe)return toast('Marca «Soy yo en esta foto» para continuar.');S.hasPhoto=true;
+ if(S.analyze){S.palState='analyzing';go('paleta',{replace:true});setTimeout(()=>{if(S.screen==='paleta'){S.palState='done';render()}},1700)}
+ else{toast('Sin paleta por ahora. Puedes hacerla cuando quieras en Yo.');go('armar1',{replace:true})}};
+A.swatch=el=>toast(el.dataset.n);
+A.palSkip=()=>{S.hasPalette=false;toast('Sin paleta por ahora. Puedes hacerla cuando quieras en Yo.');go('armar1',{replace:true})};
+A.palGo=()=>{S.hasPalette=true;S.prio=true;go('armar1',{replace:true})};
+A.palAdjust=()=>sheet(`<h3>¿Qué no te convence?</h3>${['Me siento más de colores fríos','Me siento más de colores cálidos','Me pinto el cabello','Elegir otra paleta'].map(t=>`<button class="row" data-act="palAdj"><span class="grow">${t}</span>${ic('chev',20)}</button>`).join('')}`);
+A.palAdj=()=>{closeSheet();toast('Listo, ajustamos tu paleta. Lo que elijas manda sobre la IA.')};
+A.armarBack=()=>{S.screen=S.stack.pop()||'armario';render()};
+A.armarClose=()=>sheet(`<h3>¿Guardamos lo que elegiste para después?</h3><p class="sub" style="margin-top:0">Así retomas donde te quedaste.</p><button class="btn" data-act="armarSave">Guardar</button><button class="btn ghost" data-act="armarSave" style="color:var(--muted)">Descartar</button>`);
+A.armarSave=()=>{closeSheet();S.stack=[];S.screen='armario';render()};
+A.mode=el=>{S.armarMode=el.dataset.v;render()};
+A.occ=el=>{S.occasion=el.dataset.v;render()};
+A.prio=()=>{S.prio=!S.prio;render()};
+A.conjTog=el=>{const c=el.dataset.c;S.conjSel.has(c)?S.conjSel.delete(c):S.conjSel.add(c);render()};
+A.pick=el=>{const id=el.dataset.g;if(id==='vest'&&!S.vestOK)return toast('Por revisar: aún no entra en sugerencias. Además, en este prototipo el chaleco no tiene fotos de ejemplo.');
+ if(id==='vest')return toast('En este prototipo el chaleco no tiene fotos de ejemplo.');
+ S.pick.has(id)?S.pick.delete(id):S.pick.add(id);render()};
+A.a1next=()=>{const pc=pickConjs();if(!pc.conjs.length)return toast(pc.msg);S.conjs=pc.conjs;go('armar2')};
+A.addScene=()=>{if(S.scenes.length>=3)return;S.scenes.push({text:'',title:'Estudio liso'});S.focusScene=S.scenes.length-1;render();const t=$(`[data-scene="${S.focusScene}"]`);t&&t.focus()};
+A.idea=el=>{let i=S.focusScene;if(!S.scenes[i]||S.scenes[i].text.trim()){const e=S.scenes.findIndex(s=>!s.text.trim());i=e>=0?e:S.scenes.length-1}
+ S.scenes[i]={text:el.dataset.v,title:el.dataset.v};render()};
+A.a2go=()=>{const tot=S.conjs.length*S.scenes.length;if(tot>12)return toast('Máximo 12 imágenes por tanda. Baja los conjuntos o las escenas.');
+ if(S.scenes.some(s=>sceneWarn(s.text)))return toast(sceneWarn(S.scenes.find(s=>sceneWarn(s.text)).text));
+ if(TOG.offline)return toast('Sin conexión. Tu tanda queda guardada, la armamos cuando vuelva.');
+ S.scenes=S.scenes.map(s=>({text:s.text,title:s.text.trim()?s.title:'Estudio liso'}));
+ S.checklist=false;S.badge=false;startGen();S.stack=[];S.screen='looks';render()};
+A.cancelGen=()=>{const g=S.gen;g.cancelled=true;timers.splice(0).forEach(clearTimeout);g.items.forEach(k=>{if(!g.ready.has(k))g.dropped.add(k)});g.failed.clear();g.done=true;toast('Cancelamos lo que faltaba. Lo ya creado se queda.');render()};
+A.retry=el=>{const g=S.gen,k=el.dataset.k;g.failed.delete(k);render();timers.push(setTimeout(()=>{g.ready.add(k);genCheck()},1300))};
+A.retryAll=()=>{[...S.gen.failed].forEach((k,i)=>A.retry({dataset:{k}}))};
+A.seg=el=>{const k=el.dataset.k,v=el.dataset.v;if(k==='showFavs')S.showFavs=v==='1';else S.group=v;render()};
+A.fav=(el,ev)=>{ev&&ev.stopPropagation();const k=el.dataset.k;S.favs.has(k)?S.favs.delete(k):S.favs.add(k);render()};
+A.coachLooks=()=>{S.coachLooks=false;render()};
+A.coachDetail=()=>{S.coachDetail=false;render()};
+A.howInstall=()=>sheet(`<h3>Agrégalo a tu inicio</h3>${[['1','Toca el botón Compartir de Safari.'],['2','Elige «Agregar a pantalla de inicio».'],['3','Toca «Agregar». Listo.']].map(([n,t])=>`<div class="row"><b class="av" style="width:30px;height:30px;border-radius:15px">${n}</b><span class="grow">${t}</span></div>`).join('')}<p class="sm">Así se abre a pantalla completa y podemos avisarte cuando tus outfits estén listos.</p><button class="btn" data-act="closeSheet">Entendido</button>`);
+A.noInstall=()=>{S.install=false;render()};
+A.open=el=>{const{c,si}=kText(el.dataset.k);S.detail={cid:c,si,vers:[{key:lookKey(c,si),label:'Original'}],vIdx:0,chat:false,msgs:[],busy:false,chips:null,made:0};
+ if(!S.coachDetailSeen){S.coachDetail=true;S.coachDetailSeen=true}go('detalle')};
+A.dnav=dir=>{const d=S.detail;if(d.chat)return;const keys=dKeys(),i=keys.indexOf(d.cid+':'+d.si),j=Math.max(0,Math.min(keys.length-1,i+dir));if(j===i)return;
+ const{si}=kText(keys[j]);S.detail={...d,si,vers:[{key:lookKey(d.cid,si),label:'Original'}],vIdx:0,msgs:[],made:0};render()};
+A.ver=el=>{S.detail.vIdx=+el.dataset.i;render()};
+A.chatOpen=()=>{S.coachDetail=false;S.detail.chat=true;render()};
+A.dmenu=()=>sheet(`${[['swap','Cambiar una prenda','Elige otra del armario y creamos el conjunto nuevo.'],['flag','No se parece','La prenda, el color o tu cara se ven distintos.'],['eye','Reportar imagen','Algo que no debería haber salido.']].map(([i,t,s])=>`<button class="row" data-act="dmenuPick" data-m="${t}">${ic(i,24)}<span class="grow">${t}<span class="sm">${s}</span></span></button>`).join('')}<button class="row" data-act="closeSheet" style="color:var(--red)">${ic('trash',24)}<span class="grow">Quitar</span></button>`);
+A.dmenuPick=el=>{if(el.dataset.m==='No se parece')return sheet(`<h3>¿Qué falló?</h3>${['La prenda se ve distinta','El color se ve distinto','No se parece a mí','Falta una prenda','Se ve raro'].map(t=>`<button class="row" data-act="noParece"><span class="grow">${t}</span>${ic('chev',20)}</button>`).join('')}`);closeSheet();toast('En la app esto se abre aquí.')};
+A.noParece=()=>{closeSheet();toast('Gracias. Volvemos a generar esa imagen.')};
+A.save=()=>sheet(`<div style="display:flex;gap:14px;align-items:center;margin-bottom:6px"><div class="ph" style="width:64px;aspect-ratio:2/3;border-radius:10px;background-image:${imgv(dImgKey())}"></div><div><b>Armario · ${esc(S.scenes[S.detail.si].title)}</b><div class="sm">Imagen 2:3 · Hecha con IA</div></div></div>
+ <div class="chips" style="margin:10px 0 6px">${['Mensajes','WhatsApp','Correo','AirDrop'].map(x=>`<span class="chip">${x}</span>`).join('')}</div>
+ <button class="row" data-act="saved">${ic('download',24)}<span class="grow">Guardar imagen</span></button><button class="row" data-act="closeSheet">${ic('chev',24)}<span class="grow">Copiar</span></button>
+ <p class="sm" style="margin:6px 0 0">Así se abre la hoja de compartir del iPhone, para que la imagen quede en Fotos.</p>`);
+A.saved=()=>{closeSheet();toast('Guardada en Fotos.')};
+A.shareLook=()=>sheet(`<h3>Compartir enlace</h3><p class="sub" style="margin-top:0">Estos looks muestran tu cara. Cualquier persona con el enlace los puede ver.</p><button class="btn" data-act="shareGo">Compartir</button><button class="btn ghost" data-act="closeSheet">Cancelar</button>`);
+A.shareGo=()=>{closeSheet();toast('Se abre la hoja de compartir con el enlace. Siempre podrás dejar de compartir.')};
+function addMsg(r,t){S.detail.msgs.push({r,t})}
+A.chip=el=>{if(el.dataset.v==='Cambiar una prenda')return A.dmenu();chatSay(el.dataset.v)};
+A.chatSend=()=>{const i=$('#cin');if(!i||!i.value.trim())return;const v=i.value.trim();i.value='';chatSay(v)};
+function chatSay(t){const d=S.detail;if(d.busy)return;addMsg('u',t);d.chips=null;
+ const low=t.toLowerCase();let reply,make=false;
+ if(TOG.offline)reply='Sin conexión. Escríbeme cuando vuelva.';
+ else if(/horizontal|cuadrad|panor/.test(low))reply='Todas las fotos salen en vertical, estilo Pinterest. Puedo acercar o alejar el encuadre.';
+ else if(/vestido|camisa|pantal|falda|playera|blazer|zapat|ropa|chamarra|sueter|suéter|cara|cuerpo|pelo|cabello/.test(low)){reply='La ropa y tu foto se quedan igual; aquí cambio solo el lugar y el ambiente. Si quieres otra prenda, elígela del armario.';d.chips=['Cambiar una prenda','Hazlo de noche','Más luz']}
+ else if(/desnud|sexual|violen/.test(low))reply='Eso no lo puedo crear. Cuéntame otra escena.';
+ else if(/(bonit|mejor|algo|chido|padre)/.test(low)&&low.split(/\s+/).length<4){reply='¿Más bonito cómo? ¿Más luz, otro lugar o un encuadre distinto?';d.chips=['Más luz','Otro lugar','Más cerca']}
+ else if(d.made>=1)reply='En este prototipo solo preparé una versión de ejemplo. En la app, cada cambio crea una imagen nueva (hasta 10 por look).';
+ else make=true;
+ if(!make){setTimeout(()=>{addMsg('a',reply);render()},350);render();return}
+ d.busy=true;render();
+ setTimeout(()=>{d.busy=false;d.made++;d.vers.push({key:d.cid+'_noche',label:'Versión '+(d.vers.length+1)});d.vIdx=d.vers.length-1;
+  addMsg('a',/noche|lluv/.test(low)?'Listo: la misma escena, de noche y con lluvia. Creé una versión nueva.':'Listo, creé una versión nueva. <span class="sm">(En este prototipo la versión de ejemplo siempre es de noche y con lluvia.)</span>');
+  d.chips=['Más cerca','Otro lugar','Más luz','Usar esta escena en todos mis conjuntos'];render()},2000)}
+A.yoFoto=()=>{if(!S.hasPhoto){S.photoState='none';S.itsMe=false;S.fromTab=false;return go('foto')}sheet(`<h3>Tu foto</h3><div class="ph" style="width:110px;aspect-ratio:2/3;border-radius:14px;background-image:${imgv('base')};margin-bottom:10px"></div><button class="row" data-act="closeSheet">${ic('camera',22)}<span class="grow">Cambiar foto</span></button><button class="row" data-act="closeSheet" style="color:var(--red)">${ic('trash',22)}<span class="grow">Borrar mi foto</span></button>`)};
+A.yoPal=()=>{if(!S.hasPhoto){S.photoState='none';S.itsMe=false;S.fromTab=false;return go('foto')}
+ if(!S.hasPalette){S.palState='analyzing';go('paleta');return setTimeout(()=>{if(S.screen==='paleta'){S.palState='done';render()}},1700)}S.palState='done';go('paleta')};
+A.yoPriv=()=>sheet(`<h3>Ajustes y privacidad</h3>${['Borrar mi foto','Borrar mis looks','Borrar todas mis fotos de ropa','Descargar mis datos','Agregar a mi pantalla de inicio','Ver las pistas otra vez','Borrar mi cuenta'].map(t=>`<button class="row" data-act="yoPrivPick" data-m="${t}"><span class="grow" style="${t==='Borrar mi cuenta'?'color:var(--red)':''}">${t}</span></button>`).join('')}`);
+A.yoPrivPick=el=>{closeSheet();if(el.dataset.m==='Ver las pistas otra vez'){S.coachSeen=false;S.coachDetailSeen=false;toast('Listo, las pistas volverán a salir.')}else if(el.dataset.m==='Agregar a mi pantalla de inicio')setTimeout(A.howInstall,260);else toast('En la app esto pide confirmación y borra de verdad.')};
+A.tog=el=>{TOG[el.dataset.k]=el.checked;document.querySelectorAll('[data-act=tog][data-k="'+el.dataset.k+'"]').forEach(x=>x.checked=el.checked);app.classList.toggle('off',TOG.offline);render()};
+A.reset=()=>doReset();
+function doReset(){timers.splice(0).forEach(clearTimeout);clearInterval(upTimer);S=fresh();closeSheet();render()}
+function prep(o={}){timers.splice(0).forEach(clearTimeout);clearInterval(upTimer);S=fresh();closeSheet();
+ if(o.added){S.added=true}if(o.photo){S.hasPhoto=true;S.itsMe=true;S.photoState='ok'}if(o.pal){S.hasPalette=true;S.palState='done'}}
+A.jump=el=>{const t=el.dataset.to;
+ const J={intro0:()=>{prep();S.introIdx=0;go('intro',{replace:true})},intro1:()=>{prep();S.introIdx=1;go('intro',{replace:true})},intro2:()=>{prep();S.introIdx=2;go('intro',{replace:true})},
+  cuenta:()=>{prep();go('cuenta',{replace:true})},primeras:()=>{prep();go('primeras',{replace:true})},camara:()=>{prep();S.camShots=0;go('camara',{replace:true})},
+  reconoce:()=>{prep();go('subiendo',{replace:true});startUpload()},revisar:()=>{prep({added:true});go('revisar',{replace:true})},armario0:()=>{prep({added:true});S.checklist=true;go('armario',{replace:true})},
+  foto:()=>{prep({added:true});S.vestOK=true;S.fromTab=true;go('foto',{replace:true})},paleta:()=>{prep({added:true,photo:true});S.vestOK=true;S.palState='analyzing';go('paleta',{replace:true});setTimeout(()=>{if(S.screen==='paleta'){S.palState='done';render()}},1700)},
+  armar1:()=>{prep({added:true,photo:true,pal:true});S.vestOK=true;go('armar1',{replace:true})},armar2:()=>{prep({added:true,photo:true,pal:true});S.vestOK=true;S.conjs=['c1','c2'];go('armar2',{replace:true})},
+  gen:()=>{prep({added:true,photo:true,pal:true});S.vestOK=true;S.conjs=['c1','c2'];startGen();go('looks',{replace:true})},
+  looks:()=>{prep({added:true,photo:true,pal:true});S.vestOK=true;readyAll();go('looks',{replace:true})},
+  detalle:()=>{prep({added:true,photo:true,pal:true});S.vestOK=true;readyAll();S.coachSeen=true;A.open({dataset:{k:'c1:0'}});S.coachDetail=false;render()},
+  chat:()=>{prep({added:true,photo:true,pal:true});S.vestOK=true;readyAll();S.coachSeen=true;A.open({dataset:{k:'c1:0'}});S.coachDetail=false;S.detail.chat=true;render()},
+  yo:()=>{prep({added:true,photo:true,pal:true});S.vestOK=true;go('yo',{replace:true})}};
+ closeSheet();J[t]&&J[t]()};
+
+/* ---------- eventos ---------- */
+let lpT=null,lpFired=false,sx=0,sy=0,sEl=null;
+document.addEventListener('click',e=>{if(lpFired){lpFired=false;e.preventDefault();return}
+ const el=e.target.closest('[data-act]');if(!el||el.tagName==='FORM')return;const f=A[el.dataset.act];if(f){if(el.type==='checkbox'){f(el,e);return}if(el.dataset.act==='chatSend'&&el.tagName==='FORM')return;f(el,e)}});
+document.addEventListener('change',e=>{const el=e.target.closest('[data-act="tog"]');if(el)A.tog(el)});
+document.addEventListener('submit',e=>{if(e.target.dataset.act==='chatSend'){e.preventDefault();A.chatSend()}});
+document.addEventListener('input',e=>{const t=e.target;
+ if(t.dataset.bind){S[t.dataset.bind]=t.value;if(t.dataset.bind==='q')render(),(()=>{const q=$('#q');q&&(q.focus(),q.setSelectionRange(q.value.length,q.value.length))})()}
+ if(t.dataset.scene!==undefined){const i=+t.dataset.scene,v=t.value,first=v.trim().split(/\s+/).slice(0,3).join(' ');S.scenes[i]={text:v,title:v.trim()?(S.scenes[i].title&&v===S.scenes[i].text?S.scenes[i].title:first.charAt(0).toUpperCase()+first.slice(1)):'Estudio liso'};
+  $('#cnt'+i).textContent=v.length+'/280';const w=sceneWarn(v),we=$('#w'+i);we.style.display=w?'':'none';we.querySelector('span').textContent=w}});
+document.addEventListener('focusin',e=>{if(e.target.dataset&&e.target.dataset.scene!==undefined)S.focusScene=+e.target.dataset.scene});
+screenEl.addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY;sEl=e.target.closest('[data-swipe]');const lp=e.target.closest('[data-lp]');
+ if(lp&&S.screen==='armario'&&!S.selMode){lpT=setTimeout(()=>{lpFired=true;A.lp(lp.dataset.lp)},480)}});
+['pointerup','pointercancel','pointerleave'].forEach(ev=>screenEl.addEventListener(ev,e=>{clearTimeout(lpT);
+ if(ev==='pointerup'&&sEl){const dx=e.clientX-sx,dy=e.clientY-sy;if(Math.abs(dx)>48&&Math.abs(dx)>Math.abs(dy)*1.4){const f=A[sEl.dataset.swipe];f&&f(dx<0?1:-1);lpFired=false}}sEl=null}));
+screenEl.addEventListener('pointermove',e=>{if(Math.abs(e.clientX-sx)>8||Math.abs(e.clientY-sy)>8)clearTimeout(lpT)});
+
+/* ---------- marco y arranque ---------- */
+function fit(){const mobile=innerWidth<=520;document.body.classList.toggle('mobile',mobile);const dev=$('#device'),w=$('#dwrap');
+ if(mobile){dev.style.transform='';w.style.width='';w.style.height='';return}
+ const s=Math.min(1,(innerHeight-24)/894);dev.style.transform=`scale(${s})`;w.style.width=422*s+'px';w.style.height=894*s+'px';
+ $('#side').style.display=innerWidth<860?'none':''}
+addEventListener('resize',()=>{fit();if(S.screen==='detalle'&&S.detail&&S.detail.chat)layoutChat()});
+$('#side').innerHTML=`<h1>Armario</h1><p>Prototipo de web móvil a 402 × 874 pt. Fotos y datos de ejemplo: no es la app.</p>${protoPanel()}`;
+fit();render();
+</script>
+</body>
+</html>
