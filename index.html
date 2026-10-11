@@ -234,6 +234,7 @@ h2.t{font-family:var(--serif);font-weight:700;font-size:25px;margin:4px 0 6px}
 #rotate{display:none}
 @media (orientation:landscape) and (max-height:520px) and (pointer:coarse){#rotate{display:flex;position:fixed;inset:0;z-index:999;background:#FAF8F4;align-items:center;justify-content:center;text-align:center;padding:24px;font-size:18px;line-height:1.4;color:#1c1b18}}
 </style>
+<script>addEventListener('error',function(e){var b=document.getElementById('boot');if(b)b.innerHTML='No se pudo abrir Armario.<br>Recarga la página. Si sigue igual, manda una captura de esta pantalla.<small style="display:block;margin-top:8px;color:#8a857b;font-size:12px">'+String(e.message||'error').replace(/</g,'&lt;').slice(0,160)+'</small>'});</script>
 </head>
 <body>
 <div id="stage">
@@ -245,7 +246,7 @@ h2.t{font-family:var(--serif);font-weight:700;font-size:25px;margin:4px 0 6px}
       <svg width="27" height="13" viewBox="0 0 27 13" fill="none"><rect x=".5" y=".5" width="23" height="12" rx="3.5" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="20" height="9" rx="2.2" fill="currentColor"/><rect x="25" y="4.2" width="1.8" height="4.6" rx=".9" fill="currentColor" opacity=".5"/></svg>
     </span></div>
     <div id="offline">Sin conexión. Puedes ver lo guardado.</div>
-    <main id="screen"></main>
+    <main id="screen"><div id="boot" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:32px;text-align:center;font:17px/1.4 -apple-system,system-ui,sans-serif;color:#1c1b18">Abriendo Armario…<noscript><br>Este prototipo necesita JavaScript. Ábrelo en Safari o Chrome.</noscript></div></main>
     <nav id="tabbar" class="tabbar hide"></nav>
     <div id="sheetwrap"></div>
     <div id="toast"></div>
@@ -741,9 +742,9 @@ $('#side').innerHTML=`<h1>Armario</h1><p>Prototipo de web móvil a 402 × 874 pt
 /* volver del navegador: cierra una hoja o regresa un paso, sin salir del prototipo */
 function canBack(){return $('#sheetwrap').classList.contains('in')||(S.screen==='detalle'&&S.detail&&S.detail.chat)||(S.screen==='intro'&&S.introIdx>0)||S.stack.length>0}
 function navBack(){if($('#sheetwrap').classList.contains('in'))return closeSheet();if(S.screen==='detalle'&&S.detail&&S.detail.chat)return A.chatClose();if(S.screen==='intro'&&S.introIdx>0){S.introIdx--;return render()}back()}
-history.replaceState({armario:0},'');history.pushState({armario:1},'');
-addEventListener('popstate',()=>{if(canBack()){navBack();history.pushState({armario:1},'')}});
 fit();render();
+try{history.replaceState({armario:0},'');history.pushState({armario:1},'');
+addEventListener('popstate',()=>{if(canBack()){navBack();try{history.pushState({armario:1},'')}catch(e){}}})}catch(e){}
 </script>
 <div id="rotate">Armario se ve mejor en vertical.<br>Gira tu celular.</div>
 </body>
