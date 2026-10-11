@@ -221,6 +221,18 @@ h2.t{font-family:var(--serif);font-weight:700;font-size:25px;margin:4px 0 6px}
 .panel label{display:flex;gap:10px;align-items:center;padding:7px 4px;font-size:14.5px;cursor:pointer}
 .ic{flex:none}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* v0.6.1: revisión en GitHub Pages */
+.car{scroll-padding-inline:16px 20px}
+.chip,.seg button{position:relative}
+.chip::after,.seg button::after{content:"";position:absolute;left:0;right:0;top:-4px;bottom:-4px}
+.sw2::before{content:"";position:absolute;inset:-7px -4px}
+.chips.scx{padding-top:4px!important;padding-bottom:4px!important}
+.cb{min-height:44px}
+.hit{position:relative}.hit::after{content:"";position:absolute;left:-8px;right:-8px;top:50%;height:44px;transform:translateY(-50%)}
+.dark .chip:not(.on){color:var(--ink)}
+.chat0 .dimg{max-width:calc((var(--appH,874px) - var(--st) - 140px) / 1.5)}
+#rotate{display:none}
+@media (orientation:landscape) and (max-height:520px) and (pointer:coarse){#rotate{display:flex;position:fixed;inset:0;z-index:999;background:#FAF8F4;align-items:center;justify-content:center;text-align:center;padding:24px;font-size:18px;line-height:1.4;color:#1c1b18}}
 </style>
 </head>
 <body>
@@ -387,7 +399,7 @@ VIEWS.camara=()=>{const n=S.camShots,g=G[Math.min(n,5)];
  <div class="cam"><div class="frame">${tile(g)}<i class="corner" style="left:0;top:0;border-right:0;border-bottom:0;border-radius:22px 0 0 0"></i><i class="corner" style="right:0;top:0;border-left:0;border-bottom:0;border-radius:0 22px 0 0"></i><i class="corner" style="left:0;bottom:0;border-right:0;border-top:0;border-radius:0 0 0 22px"></i><i class="corner" style="right:0;bottom:0;border-left:0;border-top:0;border-radius:0 0 22px 0"></i></div><div class="flash" id="flash"></div></div>
  <div style="padding:14px 24px 0;text-align:center;font-size:15px;line-height:1.35">Pon la prenda completa dentro del marco, sobre una superficie lisa.</div>
  <div style="display:flex;gap:8px;justify-content:center;height:56px;align-items:center;margin-top:10px">${G.slice(0,n).map(x=>`<div style="width:46px">${tile(x)}</div>`).join('')||'<span class="sm" style="color:#9a968c">Las fotos que tomes aparecen aquí</span>'}</div>
- <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 28px calc(18px + var(--sb))"><span style="width:90px;font-size:12px;color:#9a968c;line-height:1.2">Prototipo: cada toque usa una foto de ejemplo</span><button class="shutter" data-act="shot" aria-label="Tomar foto"><i></i></button><button data-act="camDone" class="chip ${n?'on':''}" style="width:90px;justify-content:center;${n?'':'opacity:.4'}">Listo (${n})</button></div></div>`}};
+ <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 28px calc(18px + var(--sb))"><span style="width:90px;font-size:12px;color:#9a968c;line-height:1.2">Prototipo: cada toque usa una foto de ejemplo</span><button class="shutter" data-act="shot" aria-label="Tomar foto"><i></i></button><button data-act="camDone" class="chip ${n?'on':''}" style="width:90px;height:44px;border-radius:22px;justify-content:center;${n?'':'opacity:.4'}">Listo (${n})</button></div></div>`}};
 
 /* Reconocimiento */
 function startUpload(){clearInterval(upTimer);S.up={phase:'up',n:0,paused:false};
@@ -418,7 +430,7 @@ VIEWS.armario=()=>{
  const F=['Todo','Arriba','Abajo','Abrigo','Calzado',...(S.hasPalette?['Me favorecen']:[])];
  const list=G.filter(g=>{const f=S.filter;if(f==='Todo')return true;if(f==='Me favorecen')return g.mark&&g.mark[0]==='y';return g.slot===f.toLowerCase()||(f==='Arriba'&&g.slot==='arriba')}).filter(g=>!S.q||(g.name+' '+g.color).toLowerCase().includes(S.q.toLowerCase()));
  const n=S.sel.size;
- const check=S.checklist&&!S.gen?`<div class="ban"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:17px">Tu primer outfit en 3 pasos</b><button class="sm" data-act="hideCheck" style="color:var(--muted)">Ocultar</button></div>
+ const check=S.checklist&&!S.gen?`<div class="ban"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font-size:17px">Tu primer outfit en 3 pasos</b><button class="sm hit" data-act="hideCheck" style="color:var(--muted)">Ocultar</button></div>
   <div style="margin:10px 0 12px;display:flex;flex-direction:column;gap:9px;font-size:15.5px">
   <div style="display:flex;gap:10px;align-items:center"><span class="av" style="width:24px;height:24px;border-radius:12px">${ic('check',14)}</span>Sube tu ropa</div>
   <div style="display:flex;gap:10px;align-items:center">${S.hasPhoto?`<span class="av" style="width:24px;height:24px;border-radius:12px">${ic('check',14)}</span>`:'<span style="width:24px;height:24px;border-radius:12px;border:2px solid #b9b3a6;display:inline-block"></span>'}Agrega tu foto</div>
@@ -428,7 +440,7 @@ VIEWS.armario=()=>{
  <div class="body" data-sc="arm" style="padding-bottom:${n?190:150}px">${check}
  <label class="search">${ic('search',20)}<input id="q" placeholder="Buscar: camisa azul" data-bind="q" value="${esc(S.q)}"></label>
  <div class="chips scx" style="margin-bottom:14px">${F.map(f=>`<button class="chip ${S.filter===f?'on':''}" data-act="filter" data-f="${f}">${f}</button>`).join('')}</div>
- ${S.hasPalette?'':`<div class="sp" style="margin-bottom:14px">${ic('pal',18)}<span><b>Descubre qué colores te favorecen.</b> <button data-act="yoPal" style="color:var(--green);font-weight:600;text-decoration:underline">${S.hasPhoto?'Analizar mis colores':'Subir mi foto'}</button></span></div>`}
+ ${S.hasPalette?'':`<div class="sp" style="margin-bottom:14px">${ic('pal',18)}<span><b>Descubre qué colores te favorecen.</b> <button class="hit" data-act="yoPal" style="color:var(--green);font-weight:600;text-decoration:underline">${S.hasPhoto?'Analizar mis colores':'Subir mi foto'}</button></span></div>`}
  ${list.length?`<div class="grid2">${list.map(g=>`<button class="gi ${S.sel.has(g.id)?'on':''}" data-act="gItem" data-g="${g.id}" data-lp="${g.id}">${tile(g)}${S.selMode?`<span class="sel">${S.sel.has(g.id)?ic('check',16):''}</span>`:''}<div class="nm">${g.id==='vest'&&S.vestOK?S.vestType:g.name}</div>${g.id==='vest'&&!S.vestOK?'<span class="badge">Por revisar</span>':marksOn(g)?`<span class="mark ${g.mark[0]}">${g.mark[0]==='y'?ic('check',12):''}${g.mark[1]}</span>`:''}</button>`).join('')}</div>`:`<div style="text-align:center;padding:40px 10px;color:var(--muted)">Ninguna prenda coincide. Quita un filtro para ver más.</div>`}
  </div>
  ${n?`<div class="selbar"><button class="btn ${n<2?'off':''}" data-act="armarWith">Armar con estas (${n})</button></div>`:`<button class="fab" data-act="camera">${ic('plus',22)}Agregar prendas</button>`}</div>`}};
@@ -472,7 +484,7 @@ VIEWS.armar1=()=>{const pc=pickConjs(),n=pc.conjs.length;
  <div class="body" data-sc="a1"><h2 class="t" style="margin-bottom:12px">¿Con qué prendas?</h2>
  <div class="seg" style="margin-bottom:16px"><button class="${S.armarMode==='elegir'?'on':''}" data-act="mode" data-v="elegir">Elegir yo</button><button class="${S.armarMode==='sugerir'?'on':''}" data-act="mode" data-v="sugerir">Sugerir</button></div>
  ${S.armarMode==='sugerir'?`<div class="chips scx" style="margin-bottom:14px">${['Trabajo','Casual','Salida','Deporte','Evento'].map(o=>`<button class="chip ${S.occasion===o?'on':''}" data-act="occ" data-v="${o}">${o}</button>`).join('')}</div>
-  ${S.hasPalette?`<div class="ban" style="display:flex;align-items:center;gap:12px;padding:12px 16px"><div style="flex:1"><b>Priorizar mis colores</b><div class="sm">Ordenamos los conjuntos por cuánto te favorecen.</div></div><button class="sw2 ${S.prio?'on':''}" data-act="prio" role="switch" aria-checked="${S.prio}" aria-label="Priorizar mis colores"></button></div>`:`<div class="sp">${ic('pal',18)}<span>Sugerimos con lo que hay, sin tus colores. <button data-act="toast" data-m="Aquí se abre Tu foto." style="color:var(--green);font-weight:600;text-decoration:underline">Subir mi foto</button> y analizamos cuáles te favorecen.</span></div>`}
+  ${S.hasPalette?`<div class="ban" style="display:flex;align-items:center;gap:12px;padding:12px 16px"><div style="flex:1"><b>Priorizar mis colores</b><div class="sm">Ordenamos los conjuntos por cuánto te favorecen.</div></div><button class="sw2 ${S.prio?'on':''}" data-act="prio" role="switch" aria-checked="${S.prio}" aria-label="Priorizar mis colores"></button></div>`:`<div class="sp">${ic('pal',18)}<span>Sugerimos con lo que hay, sin tus colores. <button class="hit" data-act="toast" data-m="Aquí se abre Tu foto." style="color:var(--green);font-weight:600;text-decoration:underline">Subir mi foto</button> y analizamos cuáles te favorecen.</span></div>`}
   ${suger()}`
  :`<div class="grid2">${G.map(g=>{const on=S.pick.has(g.id);return`<button class="gi ${on?'on':''}" data-act="pick" data-g="${g.id}">${tile(g)}<span class="sel">${on?ic('check',16):''}</span><div class="nm">${g.name}</div>${g.id==='vest'&&!S.vestOK?'<span class="badge">Por revisar</span>':''}</button>`}).join('')}</div>
   ${n===0?`<div class="sp" style="margin-top:14px">${ic('info',18)}<span>${pc.msg}</span></div>`:''}`}
@@ -537,7 +549,7 @@ VIEWS.detalle=()=>{const d=S.detail,keys=dKeys(),k=d.cid+':'+d.si,chat=d.chat,fa
   ${S.coachDetail?`<div class="coach up" style="bottom:calc(98px + var(--sb))">Toca «Cambiar escena» para platicar con el agente y cambiar el lugar, la hora o la luz.<button data-act="coachDetail">Entendido</button></div>`:''}</div>`};
  const msgs=d.msgs.map(m=>m.r==='u'?`<div class="msg"><div class="bub u">${esc(m.t)}</div></div>`:`<div class="msg"><span class="av">${ic('sparkle',18)}</span><div class="bub a">${m.t}</div></div>`).join('');
  const chips=d.busy?[]:(d.chips||['Hazlo de noche','Cambia el lugar','Más luz','Más cerca']);
- return{html:`<div class="scr chat" style="padding-top:0;--iw:200px" id="dscr"><div style="height:calc(var(--st) + var(--off))"></div>${topbar({back:'back',right:`<button class="ib" data-act="dmenu" aria-label="Más opciones">${ic('more')}</button>`})}
+ return{html:`<div class="scr chat" style="padding-top:0;--iw:200px" id="dscr"><div style="height:calc(var(--st) + var(--off))"></div>${topbar({back:'chatClose',right:`<button class="ib" data-act="dmenu" aria-label="Más opciones">${ic('more')}</button>`})}
   <div class="dstage" id="dst" style="margin-top:2px">${photo}</div>
   <div class="csheet" id="csh" style="height:var(--ch,54%)"><i class="grab" style="margin-bottom:8px"></i>${vers}
   ${msgs?'':'<h3 style="font-family:var(--serif);font-size:22px;margin:0 0 6px">Cambia la escena</h3>'}
@@ -547,7 +559,7 @@ VIEWS.detalle=()=>{const d=S.detail,keys=dKeys(),k=d.cid+':'+d.si,chat=d.chat,fa
   <form class="inbar" data-act="chatSend" onsubmit="return false"><input id="cin" placeholder="Cuéntame qué cambiar" aria-label="Mensaje" ${d.busy?'disabled':''} autocomplete="off"><button type="submit" class="send ${d.busy?'':''}" data-act="chatSend" aria-label="Enviar" ${d.busy?'disabled style="opacity:.5"':''}>${ic('send',22)}</button></form></div></div>`,
   after(){layoutChat()}}};
 function layoutChat(){const sc=$('#dscr');if(!sc)return;const H=app.clientHeight,st=parseFloat(getComputedStyle(sc).getPropertyValue('--st'))||0;
- const sheetH=Math.round(H*.54),topH=(parseFloat(getComputedStyle(document.body).getPropertyValue('--st'))||0)+(app.classList.contains('off')?30:0)+52+2;const avail=H-sheetH-topH-14;
+ const sheetH=Math.round(H*(H<760?.6:.54)),topH=(parseFloat(getComputedStyle(document.body).getPropertyValue('--st'))||0)+(app.classList.contains('off')?30:0)+52+2;const avail=H-sheetH-topH-14;
  sc.style.setProperty('--iw',Math.round(avail/1.5)+'px');sc.style.setProperty('--ch',sheetH+'px');const m=$('#msgs');if(m)m.scrollTop=m.scrollHeight}
 
 /* Yo */
@@ -651,6 +663,7 @@ A.dnav=dir=>{const d=S.detail;if(d.chat)return;const keys=dKeys(),i=keys.indexOf
  const{si}=kText(keys[j]);S.detail={...d,si,vers:[{key:lookKey(d.cid,si),label:'Original'}],vIdx:0,msgs:[],made:0};render()};
 A.ver=el=>{S.detail.vIdx=+el.dataset.i;render()};
 A.chatOpen=()=>{S.coachDetail=false;S.detail.chat=true;render()};
+A.chatClose=()=>{S.detail.chat=false;render()};
 A.dmenu=()=>sheet(`${[['swap','Cambiar una prenda','Elige otra del armario y creamos el conjunto nuevo.'],['flag','No se parece','La prenda, el color o tu cara se ven distintos.'],['eye','Reportar imagen','Algo que no debería haber salido.']].map(([i,t,s])=>`<button class="row" data-act="dmenuPick" data-m="${t}">${ic(i,24)}<span class="grow">${t}<span class="sm">${s}</span></span></button>`).join('')}<button class="row" data-act="closeSheet" style="color:var(--red)">${ic('trash',24)}<span class="grow">Quitar</span></button>`);
 A.dmenuPick=el=>{if(el.dataset.m==='No se parece')return sheet(`<h3>¿Qué falló?</h3>${['La prenda se ve distinta','El color se ve distinto','No se parece a mí','Falta una prenda','Se ve raro'].map(t=>`<button class="row" data-act="noParece"><span class="grow">${t}</span>${ic('chev',20)}</button>`).join('')}`);closeSheet();toast('En la app esto se abre aquí.')};
 A.noParece=()=>{closeSheet();toast('Gracias. Volvemos a generar esa imagen.')};
@@ -719,13 +732,19 @@ screenEl.addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY;sEl=e.targ
 screenEl.addEventListener('pointermove',e=>{if(Math.abs(e.clientX-sx)>8||Math.abs(e.clientY-sy)>8)clearTimeout(lpT)});
 
 /* ---------- marco y arranque ---------- */
-function fit(){const mobile=innerWidth<=520;document.body.classList.toggle('mobile',mobile);const dev=$('#device'),w=$('#dwrap');
+function fit(){const mobile=innerWidth<=520;requestAnimationFrame(()=>document.documentElement.style.setProperty('--appH',app.clientHeight+'px'));document.body.classList.toggle('mobile',mobile);const dev=$('#device'),w=$('#dwrap');
  if(mobile){dev.style.transform='';w.style.width='';w.style.height='';return}
  const s=Math.min(1,(innerHeight-24)/894);dev.style.transform=`scale(${s})`;w.style.width=422*s+'px';w.style.height=894*s+'px';
  $('#side').style.display=innerWidth<860?'none':''}
 addEventListener('resize',()=>{fit();if(S.screen==='detalle'&&S.detail&&S.detail.chat)layoutChat()});
 $('#side').innerHTML=`<h1>Armario</h1><p>Prototipo de web móvil a 402 × 874 pt. Fotos y datos de ejemplo: no es la app.</p>${protoPanel()}`;
+/* volver del navegador: cierra una hoja o regresa un paso, sin salir del prototipo */
+function canBack(){return $('#sheetwrap').classList.contains('in')||(S.screen==='detalle'&&S.detail&&S.detail.chat)||(S.screen==='intro'&&S.introIdx>0)||S.stack.length>0}
+function navBack(){if($('#sheetwrap').classList.contains('in'))return closeSheet();if(S.screen==='detalle'&&S.detail&&S.detail.chat)return A.chatClose();if(S.screen==='intro'&&S.introIdx>0){S.introIdx--;return render()}back()}
+history.replaceState({armario:0},'');history.pushState({armario:1},'');
+addEventListener('popstate',()=>{if(canBack()){navBack();history.pushState({armario:1},'')}});
 fit();render();
 </script>
+<div id="rotate">Armario se ve mejor en vertical.<br>Gira tu celular.</div>
 </body>
 </html>
