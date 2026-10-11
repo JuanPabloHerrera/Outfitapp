@@ -1,0 +1,34 @@
+# One-off: downloads files from temporary links and commits them to main.
+# Input: one line per file, "path|url". The links are masked in the logs.
+name: Import files
+on:
+  workflow_dispatch:
+    inputs:
+      files:
+        description: "One line per file: path|url"
+        required: true
+permissions:
+  contents: write
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download
+        env:
+          FILES: ${{ inputs.files }}
+        run: |
+          while IFS='|' read -r path url; do
+            [ -z "$path" ] && continue
+            echo "::add-mask::$url"
+            mkdir -p "$(dirname "$path")"
+            curl -fsSL "$url" -o "$path"
+            echo "$path: $(wc -c < "$path") bytes"
+          done <<< "$FILES"
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898333+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Add Armario prototype v0.6 (index.html + img)"
+          git push
